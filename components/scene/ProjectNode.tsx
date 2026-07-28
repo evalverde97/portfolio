@@ -16,13 +16,20 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
+  const isUmbrella = Boolean(node.children && node.children.length > 0);
+  const parentVisible = useExperienceStore(
+    (s) => !node.parentId || s.expandedNodeId === node.parentId
+  );
+
   const setHoveredNodeId = useExperienceStore((s) => s.setHoveredNodeId);
   const beginTravelTo = useExperienceStore((s) => s.beginTravelTo);
+  const toggleExpandedNode = useExperienceStore((s) => s.toggleExpandedNode);
 
   useFrame((state) => {
     const { scrollProgress, hoveredNodeId, transitionPhase, reducedMotion } =
       useExperienceStore.getState();
-    const fadeIn = smoothstep(0.32, 0.5, scrollProgress);
+    const fadeIn =
+      smoothstep(0.32, 0.5, scrollProgress) * (parentVisible ? 1 : 0);
     const isHovered = hoveredNodeId === node.id;
     const dimmed = hoveredNodeId != null && !isHovered;
 
@@ -57,18 +64,25 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
       ref={meshRef}
       position={node.position}
       onPointerOver={(e) => {
+        if (!parentVisible) return;
         e.stopPropagation();
         setHovered(true);
         setHoveredNodeId(node.id);
       }}
       onPointerOut={(e) => {
+        if (!parentVisible) return;
         e.stopPropagation();
         setHovered(false);
         setHoveredNodeId(null);
       }}
       onClick={(e) => {
+        if (!parentVisible) return;
         e.stopPropagation();
-        beginTravelTo(node.id);
+        if (isUmbrella) {
+          toggleExpandedNode(node.id);
+        } else {
+          beginTravelTo(node.id);
+        }
       }}
     >
       <sphereGeometry args={[0.16, 32, 32]} />
@@ -81,17 +95,25 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
         opacity={0}
         toneMapped={false}
       />
-      {hovered && (
+      {hovered && parentVisible && (
         <Html distanceFactor={8} position={[0.3, 0.15, 0]} className="pointer-events-none">
           <div className="w-48 rounded-lg border border-white/15 bg-black/80 p-3 text-white backdrop-blur-md">
             <p className="text-sm font-semibold">{node.title}</p>
             <p className="mt-1 text-xs text-muted">{node.category}</p>
-            <ul className="mt-2 space-y-0.5 text-xs text-accent-soft">
-              {node.tech.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-            <p className="mt-2 text-xs text-muted">{node.year}</p>
+            {isUmbrella ? (
+              <p className="mt-2 text-xs text-accent-soft">
+                {node.children!.length}{" "}
+                {node.children!.length === 1 ? "proyecto" : "proyectos"} · click
+                para explorar
+              </p>
+            ) : (
+              <ul className="mt-2 space-y-0.5 text-xs text-accent-soft">
+                {node.tech.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            )}
+            {node.year && <p className="mt-2 text-xs text-muted">{node.year}</p>}
           </div>
         </Html>
       )}

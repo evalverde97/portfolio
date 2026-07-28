@@ -11,15 +11,19 @@ import ProjectNode from "./ProjectNode";
 const ACCENT = new THREE.Color("#6fb3ff");
 const NEUTRAL = new THREE.Color("#3a4f73");
 const DIM = new THREE.Color("#171d29");
+const HIDDEN = new THREE.Color("#000000");
 
 export default function ProjectNodes() {
   const lineRef = useRef<THREE.LineSegments>(null);
   const materialRef = useRef<THREE.LineBasicMaterial>(null);
 
-  const { positions, colors, edgePairs } = useMemo(() => {
+  const { positions, colors, edgePairs, edgeGates } = useMemo(() => {
     const byId = new Map(projectNodes.map((n) => [n.id, n]));
     const seen = new Set<string>();
     const pairs: [string, string][] = [];
+    // For each edge, the parent id that must be expanded for it to show
+    // (null for edges between two top-level nodes, always visible).
+    const gates: (string | null)[] = [];
 
     projectNodes.forEach((node) => {
       node.connections.forEach((targetId) => {
@@ -28,6 +32,9 @@ export default function ProjectNodes() {
         if (seen.has(key)) return;
         seen.add(key);
         pairs.push([node.id, targetId]);
+        const a = byId.get(node.id)!;
+        const b = byId.get(targetId)!;
+        gates.push(a.parentId ?? b.parentId ?? null);
       });
     });
 
@@ -49,11 +56,12 @@ export default function ProjectNodes() {
       );
     });
 
-    return { positions, colors, edgePairs: pairs };
+    return { positions, colors, edgePairs: pairs, edgeGates: gates };
   }, []);
 
   useFrame(() => {
-    const { scrollProgress, hoveredNodeId } = useExperienceStore.getState();
+    const { scrollProgress, hoveredNodeId, expandedNodeId } =
+      useExperienceStore.getState();
     const fadeIn = smoothstep(0.32, 0.5, scrollProgress);
     if (materialRef.current) materialRef.current.opacity = fadeIn * 0.8;
 
@@ -62,9 +70,15 @@ export default function ProjectNodes() {
     const array = colorAttr.array as Float32Array;
 
     edgePairs.forEach(([a, b], i) => {
-      const connected =
-        hoveredNodeId != null && (a === hoveredNodeId || b === hoveredNodeId);
-      const target = hoveredNodeId == null ? NEUTRAL : connected ? ACCENT : DIM;
+      const gate = edgeGates[i];
+      const gateOpen = gate == null || gate === expandedNodeId;
+      let target = NEUTRAL;
+      if (!gateOpen) {
+        target = HIDDEN;
+      } else if (hoveredNodeId != null) {
+        const connected = a === hoveredNodeId || b === hoveredNodeId;
+        target = connected ? ACCENT : DIM;
+      }
       const ix = i * 6;
       for (let v = 0; v < 2; v += 1) {
         const off = ix + v * 3;

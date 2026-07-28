@@ -23,14 +23,88 @@ export type ProjectNode = {
   connections: string[];
   /** For umbrella nodes (like AI Projects) that bundle several standalone builds. */
   subProjects?: SubProject[];
+  /**
+   * Ids of child ProjectNodes nested under this one. Umbrella nodes with
+   * children don't navigate to a project page on click — they toggle their
+   * children's visibility as sub-nodes in the 3D network instead.
+   */
+  children?: string[];
+  /** Set on a node that only appears once its parent has been expanded. */
+  parentId?: string;
 };
 
 /**
  * Featured project nodes — placeholder content until Ezequiel supplies the
- * real project data. Positions are hand-authored to mirror the storyboard's
- * hub-and-spoke layout (AuraX at the center).
+ * real project data. Four top-level nodes (AI Projects, E-commerce,
+ * Doll-Ars, Experiments) sit in the main network; each bundles related
+ * ventures as sub-nodes that only appear once their parent is clicked.
  */
 export const projectNodes: ProjectNode[] = [
+  {
+    id: "ai-projects",
+    slug: "ai-projects",
+    title: "AI Projects",
+    category: "Artificial Intelligence",
+    tech: ["Python", "OpenAI API", "Next.js"],
+    year: "2026",
+    description: "A collection of AI-powered tools and prototypes.",
+    longDescription:
+      "An evolving set of AI-driven products and experiments — from content automation to conversational agents — exploring how large language models can be embedded into real, everyday workflows.",
+    position: [-2.8, 1.6, -0.6],
+    connections: ["ecommerce", "dollars", "experiments"],
+    subProjects: [
+      {
+        name: "Vuelapp",
+        description:
+          "Una app para organizar viajes (incluso multidestino) teniendo en cuenta todos los factores necesarios para que el viaje sea una experiencia agradable: busca el vuelo más conveniente para cada tramo, arma un cronograma de actividades día por día según el motivo del viaje, sugiere alojamiento concreto con links reales, estima el costo total y suma información práctica del destino (moneda, transporte, eSIM, VPN). Todo generado con IA a partir de un solo formulario.",
+        url: "https://vuelapp.netlify.app/",
+      },
+    ],
+  },
+  {
+    id: "ecommerce",
+    slug: "ecommerce",
+    title: "E-commerce",
+    category: "Ventures",
+    tech: [],
+    year: "",
+    description: "Online stores and marketplaces built end to end.",
+    longDescription:
+      "The ecommerce ventures — from the first dropshipping tests to AuraX and a multi-vendor marketplace. Click to explore each one.",
+    position: [2.8, 1.4, 0.5],
+    connections: ["ai-projects", "dollars", "experiments"],
+    children: ["aurax", "marketplace", "dropshipping"],
+  },
+  {
+    id: "dollars",
+    slug: "dollars",
+    title: "Doll-Ars",
+    category: "Ventures",
+    tech: [],
+    year: "",
+    description: "A brand with several businesses under it.",
+    longDescription:
+      "Doll-Ars is an entity with several businesses under it. Click to explore each one.",
+    position: [-2.4, -1.7, 0.5],
+    connections: ["ai-projects", "ecommerce", "experiments"],
+    children: ["agency"],
+  },
+  {
+    id: "experiments",
+    slug: "experiments",
+    title: "Experiments",
+    category: "Playground",
+    tech: [],
+    year: "",
+    description: "Small interactive experiments and visual prototypes.",
+    longDescription:
+      "A playground of small interactive builds — visual experiments, motion studies and interface ideas that don't need a product around them to exist.",
+    position: [2.2, -1.5, -0.6],
+    connections: ["ai-projects", "ecommerce", "dollars"],
+    children: ["trading-bot"],
+  },
+
+  // --- Sub-nodes, revealed when their parent is clicked ---
   {
     id: "aurax",
     slug: "aurax",
@@ -42,49 +116,9 @@ export const projectNodes: ProjectNode[] = [
     longDescription:
       "AuraX is a direct-to-consumer ecommerce platform for health and self-care products. Built end to end — storefront, checkout, inventory and an admin dashboard — with a focus on fast page loads and a calm, editorial visual language.",
     liveUrl: "https://example.com/aurax",
-    position: [0, 0.4, 0],
-    connections: [
-      "ai-projects",
-      "trading-bot",
-      "marketplace",
-      "agency",
-      "dropshipping",
-      "experiments",
-    ],
-  },
-  {
-    id: "ai-projects",
-    slug: "ai-projects",
-    title: "AI Projects",
-    category: "Artificial Intelligence",
-    tech: ["Python", "OpenAI API", "Next.js"],
-    year: "2026",
-    description: "A collection of AI-powered tools and prototypes.",
-    longDescription:
-      "An evolving set of AI-driven products and experiments — from content automation to conversational agents — exploring how large language models can be embedded into real, everyday workflows.",
-    position: [-3.4, 1.7, -1.1],
-    connections: ["aurax", "trading-bot", "experiments"],
-    subProjects: [
-      {
-        name: "Vuelapp",
-        description:
-          "Una app para organizar viajes (incluso multidestino) teniendo en cuenta todos los factores necesarios para que el viaje sea una experiencia agradable: busca el vuelo más conveniente para cada tramo, arma un cronograma de actividades día por día según el motivo del viaje, sugiere alojamiento concreto con links reales, estima el costo total y suma información práctica del destino (moneda, transporte, eSIM, VPN). Todo generado con IA a partir de un solo formulario.",
-        url: "https://vuelapp.netlify.app/",
-      },
-    ],
-  },
-  {
-    id: "trading-bot",
-    slug: "trading-bot",
-    title: "Trading Bot",
-    category: "Automation",
-    tech: ["Python", "WebSocket", "AWS"],
-    year: "2025",
-    description: "Automated strategy execution for crypto markets.",
-    longDescription:
-      "A rules-based trading bot that watches multiple markets in real time and executes strategies automatically, with risk limits, backtesting and alerting built in.",
-    position: [2.9, 2.1, 0.9],
-    connections: ["aurax", "ai-projects"],
+    position: [2.8, 2.6, 0.8],
+    connections: ["ecommerce"],
+    parentId: "ecommerce",
   },
   {
     id: "marketplace",
@@ -96,21 +130,9 @@ export const projectNodes: ProjectNode[] = [
     description: "Multi-vendor marketplace with integrated payments.",
     longDescription:
       "A multi-vendor marketplace connecting independent sellers with buyers, with integrated payments, seller dashboards and order fulfillment tracking.",
-    position: [3.8, 0.3, -0.7],
-    connections: ["aurax", "dropshipping", "agency"],
-  },
-  {
-    id: "agency",
-    slug: "agency",
-    title: "Agency",
-    category: "Services",
-    tech: ["Next.js", "Tailwind", "Figma"],
-    year: "2024",
-    description: "Digital agency building products for other founders.",
-    longDescription:
-      "A small digital agency helping founders design, build and ship their products — from landing pages to full web applications.",
-    position: [2.5, -1.9, 0.5],
-    connections: ["aurax", "marketplace"],
+    position: [3.9, 0.8, 0.2],
+    connections: ["ecommerce"],
+    parentId: "ecommerce",
   },
   {
     id: "dropshipping",
@@ -122,21 +144,37 @@ export const projectNodes: ProjectNode[] = [
     description: "First ecommerce ventures — where it all started.",
     longDescription:
       "The first ecommerce stores — testing products, running ads and learning the fundamentals of online retail that later shaped AuraX and Marketplace.",
-    position: [-3.0, -1.7, 0.6],
-    connections: ["aurax", "marketplace"],
+    position: [1.7, 0.8, 0.9],
+    connections: ["ecommerce"],
+    parentId: "ecommerce",
   },
   {
-    id: "experiments",
-    slug: "experiments",
-    title: "Experiments",
-    category: "Playground",
-    tech: ["Three.js", "WebGL", "GSAP"],
-    year: "2026",
-    description: "Small interactive experiments and visual prototypes.",
+    id: "agency",
+    slug: "agency",
+    title: "Models Agency",
+    category: "Doll-Ars",
+    tech: ["Next.js", "Tailwind", "Figma"],
+    year: "2024",
+    description: "One of the businesses under the Doll-Ars umbrella.",
     longDescription:
-      "A playground of small interactive builds — visual experiments, motion studies and interface ideas that don't need a product around them to exist.",
-    position: [0.2, -2.7, -1.3],
-    connections: ["aurax", "ai-projects"],
+      "One of the businesses run under the Doll-Ars umbrella. More detail lands here once the rest of the roster is in.",
+    position: [-1.2, -1.4, 0.1],
+    connections: ["dollars"],
+    parentId: "dollars",
+  },
+  {
+    id: "trading-bot",
+    slug: "trading-bot",
+    title: "Trading Bot",
+    category: "Automation",
+    tech: ["Python", "WebSocket", "AWS"],
+    year: "2025",
+    description: "Automated strategy execution for crypto markets.",
+    longDescription:
+      "A rules-based trading bot that watches multiple markets in real time and executes strategies automatically, with risk limits, backtesting and alerting built in.",
+    position: [1.0, -1.1, -0.3],
+    connections: ["experiments"],
+    parentId: "experiments",
   },
 ];
 

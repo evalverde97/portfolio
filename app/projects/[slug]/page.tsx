@@ -15,6 +15,17 @@ export default async function ProjectPage({
   const project = getProjectBySlug(slug);
   if (!project) notFound();
 
+  const childItems = (project.children ?? [])
+    .map((id) => projectNodes.find((n) => n.id === id))
+    .filter((n): n is NonNullable<typeof n> => Boolean(n))
+    .map((n) => ({
+      name: n.title,
+      description: n.description,
+      url: n.liveUrl,
+    }));
+  const includedItems = [...(project.subProjects ?? []), ...childItems];
+  const hasMockup = Boolean(project.liveUrl);
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-black px-6 pb-24 pt-32 sm:px-12 lg:px-20">
       <div
@@ -25,13 +36,18 @@ export default async function ProjectPage({
         }}
       />
 
-      <div className="relative mx-auto grid max-w-6xl gap-16 lg:grid-cols-2 lg:items-center">
+      <div
+        className={`relative mx-auto grid max-w-6xl gap-16 ${
+          hasMockup ? "lg:grid-cols-2 lg:items-center" : "max-w-2xl"
+        }`}
+      >
         <div className="flex flex-col gap-8">
           <BackToUniverse />
 
           <div>
             <p className="text-sm uppercase tracking-[0.25em] text-accent-soft">
-              {project.category} · {project.year}
+              {project.category}
+              {project.year && ` · ${project.year}`}
             </p>
             <h1 className="mt-3 text-4xl font-light text-white sm:text-5xl">
               {project.title}
@@ -41,21 +57,23 @@ export default async function ProjectPage({
             </p>
           </div>
 
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-muted">
-              Built with
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {project.tech.map((tech) => (
-                <span
-                  key={tech}
-                  className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/80"
-                >
-                  {tech}
-                </span>
-              ))}
+          {project.tech.length > 0 && (
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                Built with
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {project.tech.map((tech) => (
+                  <span
+                    key={tech}
+                    className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/80"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {project.liveUrl && (
             <a
@@ -70,39 +88,41 @@ export default async function ProjectPage({
           )}
         </div>
 
-        <div className="relative">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/60 backdrop-blur-sm">
-            <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-              <span className="ml-3 text-xs text-muted">
-                {project.title.toLowerCase().replace(/\s+/g, "")}.com
-              </span>
-            </div>
-            <div className="grid gap-3 p-6 sm:grid-cols-3">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="aspect-[3/4] rounded-lg border border-white/10"
-                  style={{
-                    background:
-                      "linear-gradient(155deg, rgba(77,159,255,0.18), rgba(255,255,255,0.03))",
-                  }}
-                />
-              ))}
+        {hasMockup && (
+          <div className="relative">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/60 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+                <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+                <span className="ml-3 text-xs text-muted">
+                  {project.title.toLowerCase().replace(/\s+/g, "")}.com
+                </span>
+              </div>
+              <div className="grid gap-3 p-6 sm:grid-cols-3">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="aspect-[3/4] rounded-lg border border-white/10"
+                    style={{
+                      background:
+                        "linear-gradient(155deg, rgba(77,159,255,0.18), rgba(255,255,255,0.03))",
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {project.subProjects && project.subProjects.length > 0 && (
+      {includedItems.length > 0 && (
         <div className="relative mx-auto mt-24 max-w-6xl">
           <p className="text-xs uppercase tracking-[0.2em] text-muted">
             Proyectos incluidos
           </p>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
-            {project.subProjects.map((sub) => (
+            {includedItems.map((sub) => (
               <div
                 key={sub.name}
                 className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"

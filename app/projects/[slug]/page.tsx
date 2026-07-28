@@ -95,6 +95,40 @@ export default async function ProjectPage({
           </div>
         </div>
       </div>
+
+      {project.subProjects && project.subProjects.length > 0 && (
+        <div className="relative mx-auto mt-24 max-w-6xl">
+          <p className="text-xs uppercase tracking-[0.2em] text-muted">
+            Proyectos incluidos
+          </p>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            {project.subProjects.map((sub) => (
+              <div
+                key={sub.name}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl font-light text-white">{sub.name}</h2>
+                  {sub.url && (
+                    <a
+                      href={sub.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm text-accent-soft transition-colors hover:text-white"
+                    >
+                      Visitar
+                      <span aria-hidden>↗</span>
+                    </a>
+                  )}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {sub.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -2,6 +2,12 @@ import { mulberry32 } from "./random";
 
 export type Vec3 = [number, number, number];
 
+export type SubProject = {
+  name: string;
+  description: string;
+  url?: string;
+};
+
 export type ProjectNode = {
   id: string;
   slug: string;
@@ -15,6 +21,8 @@ export type ProjectNode = {
   githubUrl?: string;
   position: Vec3;
   connections: string[];
+  /** For umbrella nodes (like AI Projects) that bundle several standalone builds. */
+  subProjects?: SubProject[];
 };
 
 /**
@@ -56,6 +64,14 @@ export const projectNodes: ProjectNode[] = [
       "An evolving set of AI-driven products and experiments — from content automation to conversational agents — exploring how large language models can be embedded into real, everyday workflows.",
     position: [-3.4, 1.7, -1.1],
     connections: ["aurax", "trading-bot", "experiments"],
+    subProjects: [
+      {
+        name: "Vuelapp",
+        description:
+          "Una app para organizar viajes (incluso multidestino) teniendo en cuenta todos los factores necesarios para que el viaje sea una experiencia agradable: busca el vuelo más conveniente para cada tramo, arma un cronograma de actividades día por día según el motivo del viaje, sugiere alojamiento concreto con links reales, estima el costo total y suma información práctica del destino (moneda, transporte, eSIM, VPN). Todo generado con IA a partir de un solo formulario.",
+        url: "https://vuelapp.netlify.app/",
+      },
+    ],
   },
   {
     id: "trading-bot",

@@ -1,0 +1,40 @@
+"use client";
+
+import { Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import CameraRig from "./CameraRig";
+import ParticleText from "./ParticleText";
+import NeuralNetwork from "./NeuralNetwork";
+import ProjectNodes from "./ProjectNodes";
+import PortalTransition from "./PortalTransition";
+
+export default function Experience() {
+  return (
+    <Canvas
+      camera={{ position: [0, 0, 6.5], fov: 45, near: 0.1, far: 60 }}
+      gl={{ antialias: true, powerPreference: "high-performance" }}
+      dpr={[1, 2]}
+    >
+      <color attach="background" args={["#000000"]} />
+      <fog attach="fog" args={["#000000", 9, 24]} />
+      <ambientLight intensity={0.35} />
+      <pointLight position={[0, 2, 6]} intensity={12} color="#bcd9ff" />
+      <CameraRig />
+      <Suspense fallback={null}>
+        <ParticleText />
+        <NeuralNetwork />
+        <ProjectNodes />
+      </Suspense>
+      <PortalTransition />
+      <EffectComposer multisampling={0}>
+        <Bloom
+          intensity={0.7}
+          luminanceThreshold={0.18}
+          luminanceSmoothing={0.4}
+          mipmapBlur
+        />
+      </EffectComposer>
+    </Canvas>
+  );
+}

@@ -8,7 +8,7 @@ import type { ProjectNode as ProjectNodeData } from "@/lib/graph-data";
 import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
 import { useLocaleStore } from "@/lib/locale-store";
-import { pluralProjects } from "@/lib/i18n";
+import { pick, pluralProjects } from "@/lib/i18n";
 
 const tmpScale = new THREE.Vector3();
 
@@ -95,7 +95,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
         <Html distanceFactor={8} position={[0.3, 0.15, 0]} className="pointer-events-none">
           <div className="w-36 rounded-lg border border-white/15 bg-black/80 p-3 text-white backdrop-blur-md sm:w-48">
             <p className="text-sm font-semibold">{node.title}</p>
-            <p className="mt-1 text-xs text-muted">{node.category}</p>
+            <p className="mt-1 text-xs text-muted">{pick(locale, node.category)}</p>
             {hasChildren && node.tech.length === 0 ? (
               <p className="mt-2 text-xs text-accent-soft">
                 {node.children!.length}{" "}

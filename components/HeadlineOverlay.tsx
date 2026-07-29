@@ -3,16 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
+import { useLocaleStore } from "@/lib/locale-store";
+import { dictionary } from "@/lib/i18n";
 
-const SCRIPT = [
-  "Hola.",
-  "Soy",
-  "Ezequiel Valverde.",
-  "",
-  "Welcome to my head",
-];
-
-const FULL_TEXT = SCRIPT.join("\n");
 // Same neon celeste as the node network, kept as a single accent color
 // across the whole experience.
 const NEON_ACCENT = "var(--accent-soft)";
@@ -20,29 +13,43 @@ const NEON_ACCENT = "var(--accent-soft)";
 export default function HeadlineOverlay() {
   const scrollProgress = useExperienceStore((s) => s.scrollProgress);
   const reducedMotion = useExperienceStore((s) => s.reducedMotion);
+  const locale = useLocaleStore((s) => s.locale);
   const opacity = 1 - smoothstep(0, 0.06, scrollProgress);
+
+  const fullText = useMemo(
+    () => dictionary[locale].headline.join("\n"),
+    [locale]
+  );
 
   const [typedCount, setTypedCount] = useState(0);
 
+  // Retype from scratch in the new language when the visitor switches locale
+  // (adjust state during render rather than in an effect, per React docs).
+  const [typedLocale, setTypedLocale] = useState(locale);
+  if (locale !== typedLocale) {
+    setTypedLocale(locale);
+    setTypedCount(0);
+  }
+
   useEffect(() => {
     if (reducedMotion) return; // full text shown instantly via displayCount below
-    if (typedCount >= FULL_TEXT.length) return;
+    if (typedCount >= fullText.length) return;
     // Old-computer typewriter cadence: quick per-character jitter, a longer
     // beat on line breaks so it reads like it's being typed line by line.
-    const nextChar = FULL_TEXT[typedCount];
+    const nextChar = fullText[typedCount];
     const delay = nextChar === "\n" ? 220 : 25 + Math.random() * 55;
     const timeout = window.setTimeout(() => setTypedCount((c) => c + 1), delay);
     return () => window.clearTimeout(timeout);
-  }, [typedCount, reducedMotion]);
+  }, [typedCount, reducedMotion, fullText]);
 
-  const displayCount = reducedMotion ? FULL_TEXT.length : typedCount;
-  const done = displayCount >= FULL_TEXT.length;
+  const displayCount = reducedMotion ? fullText.length : typedCount;
+  const done = displayCount >= fullText.length;
 
   const [headlineText, subtitleText] = useMemo(() => {
-    const visible = FULL_TEXT.slice(0, displayCount);
+    const visible = fullText.slice(0, displayCount);
     const [headline, subtitle] = visible.split("\n\n");
     return [headline ?? "", subtitle ?? ""];
-  }, [displayCount]);
+  }, [displayCount, fullText]);
 
   if (opacity <= 0) return null;
 
@@ -76,7 +83,7 @@ export default function HeadlineOverlay() {
         style={{ color: "var(--accent-soft)", opacity: 0.55 }}
       >
         <span className="animate-bounce text-lg">↓</span>
-        <span>SCROLL</span>
+        <span>{dictionary[locale].scroll}</span>
       </div>
     </div>
   );

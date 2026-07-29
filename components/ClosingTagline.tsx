@@ -2,10 +2,14 @@
 
 import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
+import { useLocaleStore } from "@/lib/locale-store";
+import { dictionary } from "@/lib/i18n";
 
 export default function ClosingTagline() {
   const scrollProgress = useExperienceStore((s) => s.scrollProgress);
   const transitionPhase = useExperienceStore((s) => s.transitionPhase);
+  const locale = useLocaleStore((s) => s.locale);
+  const [line1, line2] = dictionary[locale].tagline;
   const opacity =
     smoothstep(0.86, 1, scrollProgress) * (transitionPhase === "idle" ? 1 : 0);
 
@@ -17,9 +21,9 @@ export default function ClosingTagline() {
       style={{ opacity }}
     >
       <p className="text-2xl font-light text-white sm:text-3xl">
-        Every idea begins as a node.
+        {line1}
         <br />
-        <span className="text-accent-soft">Explore my universe.</span>
+        <span className="text-accent-soft">{line2}</span>
       </p>
       <p className="text-xs tracking-[0.25em] text-muted">ezequielvalverde.com</p>
     </div>

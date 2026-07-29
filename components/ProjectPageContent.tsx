@@ -1,21 +1,27 @@
 "use client";
 
-import type { ProjectNode, SubProject } from "@/lib/graph-data";
+import type { ProjectNode } from "@/lib/graph-data";
 import { useLocaleStore } from "@/lib/locale-store";
-import { dictionary } from "@/lib/i18n";
+import { dictionary, pick } from "@/lib/i18n";
 import BackToUniverse from "@/components/BackToUniverse";
 
 export default function ProjectPageContent({
   project,
-  includedItems,
+  childNodes,
   hasMockup,
 }: {
   project: ProjectNode;
-  includedItems: SubProject[];
+  childNodes: ProjectNode[];
   hasMockup: boolean;
 }) {
   const locale = useLocaleStore((s) => s.locale);
   const t = dictionary[locale];
+
+  const includedItems = childNodes.map((n) => ({
+    name: n.title,
+    description: pick(locale, n.description),
+    url: n.liveUrl ?? n.instagramUrl,
+  }));
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-black px-6 pb-24 pt-32 sm:px-12 lg:px-20">
@@ -36,15 +42,23 @@ export default function ProjectPageContent({
           <BackToUniverse />
 
           <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-accent-soft">
-              {project.category}
-              {project.year && ` · ${project.year}`}
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm uppercase tracking-[0.25em] text-accent-soft">
+                {pick(locale, project.category)}
+                {project.year && ` · ${project.year}`}
+              </p>
+              {project.statusKey && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft/30 bg-accent-soft/10 px-3 py-1 text-xs text-accent-soft">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent-soft animate-pulse" />
+                  {t.status[project.statusKey]}
+                </span>
+              )}
+            </div>
             <h1 className="mt-3 text-4xl font-light text-white sm:text-5xl">
               {project.title}
             </h1>
             <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
-              {project.longDescription}
+              {pick(locale, project.longDescription)}
             </p>
           </div>
 
@@ -75,7 +89,7 @@ export default function ProjectPageContent({
                   rel="noopener noreferrer"
                   className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black transition-transform hover:-translate-y-0.5"
                 >
-                  {project.ctaLabel ?? t.viewProject}
+                  {project.ctaLabel ? pick(locale, project.ctaLabel) : t.viewProject}
                   <span aria-hidden>↗</span>
                 </a>
               )}

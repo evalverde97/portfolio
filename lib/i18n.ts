@@ -1,5 +1,12 @@
 export type Locale = "es" | "en";
 
+/** A piece of content authored in both languages. */
+export type Bilingual = { es: string; en: string };
+
+export function pick(locale: Locale, value: Bilingual): string {
+  return value[locale];
+}
+
 export const dictionary = {
   es: {
     nav: { projects: "Proyectos", about: "Sobre mí", contact: "Contacto" },
@@ -17,6 +24,9 @@ export const dictionary = {
       "La historia completa — y la línea de tiempo animada — llega en la próxima etapa de la experiencia.",
     contactBody:
       "Email, GitHub, LinkedIn e Instagram llegan en la próxima etapa de la experiencia.",
+    status: { building: "En construcción", comingSoon: "Próximamente" },
+    headline: ["Hola.", "Soy", "Ezequiel Valverde.", "", "Bienvenido a mi cabeza"],
+    tagline: ["Cada idea empieza como un nodo.", "Explorá mi universo."],
   },
   en: {
     nav: { projects: "Projects", about: "About", contact: "Contact" },
@@ -34,6 +44,9 @@ export const dictionary = {
       "The full story — and the animated timeline — is landing in the next pass of the experience.",
     contactBody:
       "Email, GitHub, LinkedIn and Instagram links are landing in the next pass of the experience.",
+    status: { building: "Building", comingSoon: "Coming soon" },
+    headline: ["Hi.", "I'm", "Ezequiel Valverde.", "", "Welcome to my head"],
+    tagline: ["Every idea begins as a node.", "Explore my universe."],
   },
 } as const;
 

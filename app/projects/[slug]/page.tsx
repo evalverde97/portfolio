@@ -15,15 +15,9 @@ export default async function ProjectPage({
   const project = getProjectBySlug(slug);
   if (!project) notFound();
 
-  const childItems = (project.children ?? [])
+  const childNodes = (project.children ?? [])
     .map((id) => projectNodes.find((n) => n.id === id))
-    .filter((n): n is NonNullable<typeof n> => Boolean(n))
-    .map((n) => ({
-      name: n.title,
-      description: n.description,
-      url: n.liveUrl ?? n.instagramUrl,
-    }));
-  const includedItems = [...(project.subProjects ?? []), ...childItems];
+    .filter((n): n is NonNullable<typeof n> => Boolean(n));
   // The browser-chrome mockup only makes sense for an actual website —
   // skip it for links to documents, docs, etc.
   const hasMockup =
@@ -32,7 +26,7 @@ export default async function ProjectPage({
   return (
     <ProjectPageContent
       project={project}
-      includedItems={includedItems}
+      childNodes={childNodes}
       hasMockup={hasMockup}
     />
   );

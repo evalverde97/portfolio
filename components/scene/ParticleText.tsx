@@ -63,8 +63,8 @@ function randomDustTarget(rand: () => number): [number, number, number] {
   ];
 }
 
-const TERMINAL_GREEN = new THREE.Color("#4dff8c");
-const NETWORK_BLUE = new THREE.Color("#bcd9ff");
+// Same neon celeste as the rest of the network — one accent color throughout.
+const PARTICLE_COLOR = "#9fc6ff";
 
 export default function ParticleText() {
   const pointsRef = useRef<THREE.Points>(null);
@@ -95,12 +95,7 @@ export default function ParticleText() {
     const fadeOut = smoothstep(0.2, 0.34, scrollProgress);
     const opacity = Math.max(fadeIn - fadeOut, 0);
 
-    if (materialRef.current) {
-      materialRef.current.opacity = opacity;
-      // The typed-out headline is terminal green; as it dissolves into the
-      // network it shifts toward the network's electric blue.
-      materialRef.current.color.lerpColors(TERMINAL_GREEN, NETWORK_BLUE, dissolveT);
-    }
+    if (materialRef.current) materialRef.current.opacity = opacity;
     if (opacity <= 0) return;
 
     const posAttr = geometry.attributes.position;
@@ -123,7 +118,7 @@ export default function ParticleText() {
       <PointMaterial
         ref={materialRef}
         transparent
-        color="#4dff8c"
+        color={PARTICLE_COLOR}
         size={0.026}
         sizeAttenuation
         depthWrite={false}

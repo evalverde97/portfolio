@@ -15,7 +15,9 @@ const SCRIPT = [
 ];
 
 const FULL_TEXT = SCRIPT.join("\n");
-const TERMINAL_GREEN = "#4dff8c";
+// Same neon celeste as the node network, kept as a single accent color
+// across the whole experience.
+const NEON_ACCENT = "var(--accent-soft)";
 
 export default function HeadlineOverlay() {
   const scrollProgress = useExperienceStore((s) => s.scrollProgress);
@@ -55,9 +57,9 @@ export default function HeadlineOverlay() {
         <p
           className="whitespace-pre-line break-words text-3xl leading-tight sm:text-5xl md:text-6xl"
           style={{
-            color: TERMINAL_GREEN,
+            color: NEON_ACCENT,
             textShadow:
-              "0 0 14px rgba(77,255,140,0.6), 0 0 28px rgba(77,255,140,0.25)",
+              "0 0 14px rgba(77,159,255,0.6), 0 0 28px rgba(77,159,255,0.3)",
           }}
         >
           {headlineText}
@@ -65,7 +67,7 @@ export default function HeadlineOverlay() {
         </p>
         <div
           className="mt-6 flex flex-col gap-1 whitespace-pre-line text-xs tracking-[0.15em] sm:mt-8 sm:text-sm md:text-base"
-          style={{ color: "rgba(77,255,140,0.65)" }}
+          style={{ color: "var(--accent-soft)", opacity: 0.7 }}
         >
           {subtitleText}
           {done && <span className="animate-pulse">▌</span>}
@@ -73,7 +75,7 @@ export default function HeadlineOverlay() {
       </div>
       <div
         className="absolute inset-x-0 bottom-8 flex flex-col items-center gap-2 text-xs tracking-[0.3em] sm:bottom-10"
-        style={{ color: "rgba(77,255,140,0.5)" }}
+        style={{ color: "var(--accent-soft)", opacity: 0.55 }}
       >
         <span className="animate-bounce text-lg">↓</span>
         <span>SCROLL</span>

@@ -12,7 +12,6 @@ import ProjectNode from "./ProjectNode";
 const ACCENT = new THREE.Color("#6fb3ff");
 const NEUTRAL = new THREE.Color("#3a4f73");
 const DIM = new THREE.Color("#171d29");
-const HIDDEN = new THREE.Color("#000000");
 const PULSE_COLOR = new THREE.Color("#eaf3ff");
 
 export default function ProjectNodes() {
@@ -25,7 +24,6 @@ export default function ProjectNodes() {
     positions,
     colors,
     edgePairs,
-    edgeGates,
     pulseEdgeA,
     pulseEdgeB,
     pulsePhase,
@@ -35,9 +33,6 @@ export default function ProjectNodes() {
     const byId = new Map(projectNodes.map((n) => [n.id, n]));
     const seen = new Set<string>();
     const pairs: [string, string][] = [];
-    // For each edge, the parent id that must be expanded for it to show
-    // (null for edges between two top-level nodes, always visible).
-    const gates: (string | null)[] = [];
 
     projectNodes.forEach((node) => {
       node.connections.forEach((targetId) => {
@@ -46,9 +41,6 @@ export default function ProjectNodes() {
         if (seen.has(key)) return;
         seen.add(key);
         pairs.push([node.id, targetId]);
-        const a = byId.get(node.id)!;
-        const b = byId.get(targetId)!;
-        gates.push(a.parentId ?? b.parentId ?? null);
       });
     });
 
@@ -70,19 +62,15 @@ export default function ProjectNodes() {
       );
     });
 
-    // Traveling signal pulses along the always-visible top-level mesh
-    // (skip parent-gated edges — they're mostly hidden anyway).
+    // A traveling signal pulse along every connection, main mesh and
+    // parent → sub-node alike, so the whole graph reads as one live network.
     const rand = mulberry32(4242);
-    const topLevelIdx = pairs
-      .map((_, i) => i)
-      .filter((i) => gates[i] == null);
-    const pulseCount = topLevelIdx.length;
+    const pulseCount = pairs.length;
     const pulseEdgeA = new Float32Array(pulseCount * 3);
     const pulseEdgeB = new Float32Array(pulseCount * 3);
     const pulsePhase = new Float32Array(pulseCount);
     const pulseSpeed = new Float32Array(pulseCount);
-    topLevelIdx.forEach((edgeIdx, i) => {
-      const [a, b] = pairs[edgeIdx];
+    pairs.forEach(([a, b], i) => {
       pulseEdgeA.set(byId.get(a)!.position, i * 3);
       pulseEdgeB.set(byId.get(b)!.position, i * 3);
       pulsePhase[i] = rand();
@@ -93,7 +81,6 @@ export default function ProjectNodes() {
       positions,
       colors,
       edgePairs: pairs,
-      edgeGates: gates,
       pulseEdgeA,
       pulseEdgeB,
       pulsePhase,
@@ -106,7 +93,7 @@ export default function ProjectNodes() {
   const pulseColors = useMemo(() => new Float32Array(pulseCount * 3), [pulseCount]);
 
   useFrame((state) => {
-    const { scrollProgress, hoveredNodeId, expandedNodeId, reducedMotion } =
+    const { scrollProgress, hoveredNodeId, reducedMotion } =
       useExperienceStore.getState();
     const fadeIn = smoothstep(0.32, 0.5, scrollProgress);
     if (materialRef.current) materialRef.current.opacity = fadeIn * 0.8;
@@ -116,12 +103,8 @@ export default function ProjectNodes() {
       const array = colorAttr.array as Float32Array;
 
       edgePairs.forEach(([a, b], i) => {
-        const gate = edgeGates[i];
-        const gateOpen = gate == null || gate === expandedNodeId;
         let target = NEUTRAL;
-        if (!gateOpen) {
-          target = HIDDEN;
-        } else if (hoveredNodeId != null) {
+        if (hoveredNodeId != null) {
           const connected = a === hoveredNodeId || b === hoveredNodeId;
           target = connected ? ACCENT : DIM;
         }

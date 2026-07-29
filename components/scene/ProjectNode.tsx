@@ -16,32 +16,32 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
-  const isUmbrella = Boolean(node.children && node.children.length > 0);
-  const parentVisible = useExperienceStore(
-    (s) => !node.parentId || s.expandedNodeId === node.parentId
-  );
+  const isSubNode = Boolean(node.parentId);
+  const hasChildren = Boolean(node.children && node.children.length > 0);
+  // Sub-nodes sit smaller and dimmer at rest, then light up to full size on
+  // hover — the 5 main nodes stay the "brighter" tier at all times.
+  const restScale = isSubNode ? 0.68 : 1;
+  const restEmissive = isSubNode ? 0.3 : 0.55;
 
   const setHoveredNodeId = useExperienceStore((s) => s.setHoveredNodeId);
   const beginTravelTo = useExperienceStore((s) => s.beginTravelTo);
-  const toggleExpandedNode = useExperienceStore((s) => s.toggleExpandedNode);
 
   useFrame((state) => {
     const { scrollProgress, hoveredNodeId, transitionPhase, reducedMotion } =
       useExperienceStore.getState();
-    const fadeIn =
-      smoothstep(0.32, 0.5, scrollProgress) * (parentVisible ? 1 : 0);
+    const fadeIn = smoothstep(0.32, 0.5, scrollProgress);
     const isHovered = hoveredNodeId === node.id;
     const dimmed = hoveredNodeId != null && !isHovered;
 
     if (materialRef.current) {
-      const targetEmissive = isHovered ? 1.5 : dimmed ? 0.15 : 0.55;
+      const targetEmissive = isHovered ? 1.5 : dimmed ? 0.12 : restEmissive;
       materialRef.current.emissiveIntensity +=
         (targetEmissive - materialRef.current.emissiveIntensity) * 0.15;
       materialRef.current.opacity += (fadeIn - materialRef.current.opacity) * 0.1;
     }
 
     if (meshRef.current) {
-      const targetScale = (isHovered ? 1.5 : 1) * Math.max(fadeIn, 0.001);
+      const targetScale = (isHovered ? 1.5 : restScale) * Math.max(fadeIn, 0.001);
       tmpScale.set(targetScale, targetScale, targetScale);
       meshRef.current.scale.lerp(tmpScale, 0.15);
 
@@ -64,25 +64,18 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
       ref={meshRef}
       position={node.position}
       onPointerOver={(e) => {
-        if (!parentVisible) return;
         e.stopPropagation();
         setHovered(true);
         setHoveredNodeId(node.id);
       }}
       onPointerOut={(e) => {
-        if (!parentVisible) return;
         e.stopPropagation();
         setHovered(false);
         setHoveredNodeId(null);
       }}
       onClick={(e) => {
-        if (!parentVisible) return;
         e.stopPropagation();
-        if (isUmbrella) {
-          toggleExpandedNode(node.id);
-        } else {
-          beginTravelTo(node.id);
-        }
+        beginTravelTo(node.id);
       }}
     >
       <sphereGeometry args={[0.16, 32, 32]} />
@@ -95,16 +88,15 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
         opacity={0}
         toneMapped={false}
       />
-      {hovered && parentVisible && (
+      {hovered && (
         <Html distanceFactor={8} position={[0.3, 0.15, 0]} className="pointer-events-none">
           <div className="w-36 rounded-lg border border-white/15 bg-black/80 p-3 text-white backdrop-blur-md sm:w-48">
             <p className="text-sm font-semibold">{node.title}</p>
             <p className="mt-1 text-xs text-muted">{node.category}</p>
-            {isUmbrella ? (
+            {hasChildren && node.tech.length === 0 ? (
               <p className="mt-2 text-xs text-accent-soft">
                 {node.children!.length}{" "}
-                {node.children!.length === 1 ? "proyecto" : "proyectos"} · click
-                para explorar
+                {node.children!.length === 1 ? "proyecto" : "proyectos"}
               </p>
             ) : (
               <ul className="mt-2 space-y-0.5 text-xs text-accent-soft">

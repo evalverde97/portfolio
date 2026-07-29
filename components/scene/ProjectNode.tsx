@@ -9,6 +9,7 @@ import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
 import { useLocaleStore } from "@/lib/locale-store";
 import { pick, pluralProjects } from "@/lib/i18n";
+import { isMobileViewport } from "@/lib/device";
 
 const tmpScale = new THREE.Vector3();
 
@@ -17,6 +18,11 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
+  // Touch devices have no hover, so the node name would otherwise never
+  // show until you tap (which immediately navigates) — give it a small
+  // permanent label instead, once the network has settled into view.
+  const [isTouch] = useState(() => isMobileViewport());
+  const networkSettled = useExperienceStore((s) => s.networkSettled);
 
   const isSubNode = Boolean(node.parentId);
   const hasChildren = Boolean(node.children && node.children.length > 0);
@@ -110,6 +116,13 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
             )}
             {node.year && <p className="mt-2 text-xs text-muted">{node.year}</p>}
           </div>
+        </Html>
+      )}
+      {isTouch && networkSettled && !hovered && (
+        <Html distanceFactor={8} position={[0, -0.28, 0]} center className="pointer-events-none">
+          <span className="whitespace-nowrap rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-white/85 backdrop-blur-sm">
+            {node.title}
+          </span>
         </Html>
       )}
     </mesh>

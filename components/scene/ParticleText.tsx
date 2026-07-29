@@ -7,14 +7,14 @@ import * as THREE from "three";
 import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
 import { mulberry32 } from "@/lib/random";
+import { isMobileViewport } from "@/lib/device";
 
 const LINES = ["Hola.", "Soy", "Ezequiel Valverde."];
 const CANVAS_W = 1024;
 const CANVAS_H = 384;
-const STEP = 3;
 const PLANE_WIDTH = 7.6;
 
-function sampleTextPoints(rand: () => number) {
+function sampleTextPoints(rand: () => number, step: number) {
   const canvas = document.createElement("canvas");
   canvas.width = CANVAS_W;
   canvas.height = CANVAS_H;
@@ -37,8 +37,8 @@ function sampleTextPoints(rand: () => number) {
   const positions: number[] = [];
   const planeHeight = (PLANE_WIDTH * CANVAS_H) / CANVAS_W;
 
-  for (let y = 0; y < CANVAS_H; y += STEP) {
-    for (let x = 0; x < CANVAS_W; x += STEP) {
+  for (let y = 0; y < CANVAS_H; y += step) {
+    for (let x = 0; x < CANVAS_W; x += step) {
       const alpha = data[(y * CANVAS_W + x) * 4 + 3];
       if (alpha > 128) {
         const worldX = (x / CANVAS_W - 0.5) * PLANE_WIDTH;
@@ -72,7 +72,7 @@ export default function ParticleText() {
 
   const { origins, targets, count } = useMemo(() => {
     const rand = mulberry32(99);
-    const { origins, count } = sampleTextPoints(rand);
+    const { origins, count } = sampleTextPoints(rand, isMobileViewport() ? 5 : 3);
     const targets = new Float32Array(count * 3);
     for (let i = 0; i < count; i += 1) {
       const [tx, ty, tz] = randomDustTarget(rand);

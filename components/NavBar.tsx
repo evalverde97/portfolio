@@ -15,7 +15,7 @@ export default function NavBar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center">
       <nav
-        className="mt-4 flex w-[min(92%,720px)] items-center justify-between rounded-full border border-white/10 bg-black/40 px-6 py-3 backdrop-blur-md"
+        className="mt-4 flex w-[min(94%,720px)] items-center justify-between rounded-full border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md sm:px-6"
         aria-label="Primary"
       >
         <Link
@@ -24,7 +24,7 @@ export default function NavBar() {
         >
           EV
         </Link>
-        <ul className="flex items-center gap-6 text-sm text-muted">
+        <ul className="flex items-center gap-3 text-xs text-muted sm:gap-6 sm:text-sm">
           {links.map((link) => {
             const active = pathname === link.href;
             return (

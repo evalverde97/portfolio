@@ -48,12 +48,12 @@ export default function HeadlineOverlay() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-10 flex flex-col justify-center px-8 font-mono sm:px-16"
+      className="pointer-events-none fixed inset-0 z-10 flex flex-col justify-center px-6 font-mono sm:px-16"
       style={{ opacity }}
     >
       <div className="max-w-xl">
         <p
-          className="whitespace-pre-line text-4xl leading-tight sm:text-6xl"
+          className="whitespace-pre-line break-words text-3xl leading-tight sm:text-5xl md:text-6xl"
           style={{
             color: TERMINAL_GREEN,
             textShadow:
@@ -64,7 +64,7 @@ export default function HeadlineOverlay() {
           {!done && <span className="animate-pulse">▌</span>}
         </p>
         <div
-          className="mt-8 flex flex-col gap-1 whitespace-pre-line text-sm tracking-[0.15em] sm:text-base"
+          className="mt-6 flex flex-col gap-1 whitespace-pre-line text-xs tracking-[0.15em] sm:mt-8 sm:text-sm md:text-base"
           style={{ color: "rgba(77,255,140,0.65)" }}
         >
           {subtitleText}
@@ -72,7 +72,7 @@ export default function HeadlineOverlay() {
         </div>
       </div>
       <div
-        className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-2 text-xs tracking-[0.3em]"
+        className="absolute inset-x-0 bottom-8 flex flex-col items-center gap-2 text-xs tracking-[0.3em] sm:bottom-10"
         style={{ color: "rgba(77,255,140,0.5)" }}
       >
         <span className="animate-bounce text-lg">↓</span>

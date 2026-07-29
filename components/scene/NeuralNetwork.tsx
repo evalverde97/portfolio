@@ -7,9 +7,8 @@ import { generateAmbientField, generateAmbientEdges } from "@/lib/graph-data";
 import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
 import { mulberry32 } from "@/lib/random";
+import { isMobileViewport } from "@/lib/device";
 
-const NODE_COUNT = 70;
-const NEIGHBOURS = 3;
 const PULSE_COLOR = new THREE.Color("#dcebff");
 
 export default function NeuralNetwork() {
@@ -29,8 +28,9 @@ export default function NeuralNetwork() {
     pulseSpeed,
     pulseCount,
   } = useMemo(() => {
-    const field = generateAmbientField(NODE_COUNT);
-    const edges = generateAmbientEdges(field, NEIGHBOURS);
+    const mobile = isMobileViewport();
+    const field = generateAmbientField(mobile ? 38 : 70);
+    const edges = generateAmbientEdges(field, mobile ? 2 : 3);
 
     const basePositions = new Float32Array(field.length * 3);
     field.forEach((p, i) => {

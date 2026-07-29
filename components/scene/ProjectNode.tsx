@@ -97,7 +97,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
       />
       {hovered && parentVisible && (
         <Html distanceFactor={8} position={[0.3, 0.15, 0]} className="pointer-events-none">
-          <div className="w-48 rounded-lg border border-white/15 bg-black/80 p-3 text-white backdrop-blur-md">
+          <div className="w-36 rounded-lg border border-white/15 bg-black/80 p-3 text-white backdrop-blur-md sm:w-48">
             <p className="text-sm font-semibold">{node.title}</p>
             <p className="mt-1 text-xs text-muted">{node.category}</p>
             {isUmbrella ? (

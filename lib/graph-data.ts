@@ -35,9 +35,10 @@ export type ProjectNode = {
 
 /**
  * Featured project nodes — placeholder content until Ezequiel supplies the
- * real project data. Four top-level nodes (AI Projects, E-commerce,
- * Doll-Ars, Experiments) sit in the main network; each bundles related
- * ventures as sub-nodes that only appear once their parent is clicked.
+ * real project data. Five top-level nodes (AI Projects, E-commerce,
+ * Trading, Doll-Ars, Experiments) sit in a pentagon around the network
+ * center, fully interconnected; each umbrella bundles related ventures as
+ * sub-nodes that only appear once their parent is clicked.
  */
 export const projectNodes: ProjectNode[] = [
   {
@@ -50,8 +51,8 @@ export const projectNodes: ProjectNode[] = [
     description: "A collection of AI-powered tools and prototypes.",
     longDescription:
       "An evolving set of AI-driven products and experiments — from content automation to conversational agents — exploring how large language models can be embedded into real, everyday workflows.",
-    position: [-2.8, 1.6, -0.6],
-    connections: ["ecommerce", "dollars", "experiments"],
+    position: [-2.473, 0.803, -0.6],
+    connections: ["ecommerce", "trading", "dollars", "experiments"],
     subProjects: [
       {
         name: "Vuelapp",
@@ -71,9 +72,22 @@ export const projectNodes: ProjectNode[] = [
     description: "Online stores and marketplaces built end to end.",
     longDescription:
       "The ecommerce ventures — from the first dropshipping tests to AuraX and a multi-vendor marketplace. Click to explore each one.",
-    position: [2.8, 1.4, 0.5],
-    connections: ["ai-projects", "dollars", "experiments"],
+    position: [2.473, 0.803, 0.5],
+    connections: ["ai-projects", "trading", "dollars", "experiments"],
     children: ["aurax", "marketplace", "dropshipping"],
+  },
+  {
+    id: "trading",
+    slug: "trading",
+    title: "Trading",
+    category: "Automation",
+    tech: ["Python", "WebSocket", "AWS"],
+    year: "2025",
+    description: "Automated strategy execution across markets.",
+    longDescription:
+      "Rules-based trading — systems that watch multiple markets in real time and execute strategies automatically, with risk limits, backtesting and alerting built in.",
+    position: [0, 2.6, 0.9],
+    connections: ["ai-projects", "ecommerce", "dollars", "experiments"],
   },
   {
     id: "dollars",
@@ -85,8 +99,8 @@ export const projectNodes: ProjectNode[] = [
     description: "A brand with several businesses under it.",
     longDescription:
       "Doll-Ars is an entity with several businesses under it. Click to explore each one.",
-    position: [-2.4, -1.7, 0.5],
-    connections: ["ai-projects", "ecommerce", "experiments"],
+    position: [-1.529, -2.103, 0.5],
+    connections: ["ai-projects", "ecommerce", "trading", "experiments"],
     children: ["doll-art", "doll-ars-agency", "doll-ars-concierge"],
   },
   {
@@ -94,14 +108,13 @@ export const projectNodes: ProjectNode[] = [
     slug: "experiments",
     title: "Experiments",
     category: "Playground",
-    tech: [],
-    year: "",
+    tech: ["Three.js", "WebGL", "GSAP"],
+    year: "2026",
     description: "Small interactive experiments and visual prototypes.",
     longDescription:
       "A playground of small interactive builds — visual experiments, motion studies and interface ideas that don't need a product around them to exist.",
-    position: [2.2, -1.5, -0.6],
-    connections: ["ai-projects", "ecommerce", "dollars"],
-    children: ["trading-bot"],
+    position: [1.529, -2.103, -0.6],
+    connections: ["ai-projects", "ecommerce", "trading", "dollars"],
   },
 
   // --- Sub-nodes, revealed when their parent is clicked ---
@@ -116,7 +129,7 @@ export const projectNodes: ProjectNode[] = [
     longDescription:
       "AuraX is a direct-to-consumer ecommerce platform for health and self-care products. Built end to end — storefront, checkout, inventory and an admin dashboard — with a focus on fast page loads and a calm, editorial visual language.",
     liveUrl: "https://example.com/aurax",
-    position: [2.8, 2.6, 0.8],
+    position: [2.473, 2.003, 0.8],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
@@ -130,7 +143,7 @@ export const projectNodes: ProjectNode[] = [
     description: "Multi-vendor marketplace with integrated payments.",
     longDescription:
       "A multi-vendor marketplace connecting independent sellers with buyers, with integrated payments, seller dashboards and order fulfillment tracking.",
-    position: [3.9, 0.8, 0.2],
+    position: [3.573, 0.203, 0.2],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
@@ -144,7 +157,7 @@ export const projectNodes: ProjectNode[] = [
     description: "First ecommerce ventures — where it all started.",
     longDescription:
       "The first ecommerce stores — testing products, running ads and learning the fundamentals of online retail that later shaped AuraX and Marketplace.",
-    position: [1.7, 0.8, 0.9],
+    position: [1.373, 0.203, 0.9],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
@@ -158,7 +171,7 @@ export const projectNodes: ProjectNode[] = [
     description: "Venta de arte.",
     longDescription:
       "Doll-Art es la rama de Doll-Ars dedicada a la venta de arte.",
-    position: [-3.5, -0.5, 0.8],
+    position: [-2.629, -0.903, 0.8],
     connections: ["dollars"],
     parentId: "dollars",
   },
@@ -172,7 +185,7 @@ export const projectNodes: ProjectNode[] = [
     description: "Agencia de modelos.",
     longDescription:
       "Doll-Ars Agency es la agencia de modelos dentro del ecosistema Doll-Ars.",
-    position: [-1.2, -1.4, 0.1],
+    position: [-0.329, -1.803, 0.1],
     connections: ["dollars"],
     parentId: "dollars",
   },
@@ -186,23 +199,9 @@ export const projectNodes: ProjectNode[] = [
     description: "Agencia de concierge, experiencias VIP.",
     longDescription:
       "Doll-Ars Concierge ofrece servicios de concierge y experiencias VIP.",
-    position: [-2.4, -3.0, 1.0],
+    position: [-1.529, -3.403, 1.0],
     connections: ["dollars"],
     parentId: "dollars",
-  },
-  {
-    id: "trading-bot",
-    slug: "trading-bot",
-    title: "Trading Bot",
-    category: "Automation",
-    tech: ["Python", "WebSocket", "AWS"],
-    year: "2025",
-    description: "Automated strategy execution for crypto markets.",
-    longDescription:
-      "A rules-based trading bot that watches multiple markets in real time and executes strategies automatically, with risk limits, backtesting and alerting built in.",
-    position: [1.0, -1.1, -0.3],
-    connections: ["experiments"],
-    parentId: "experiments",
   },
 ];
 

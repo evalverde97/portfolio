@@ -25,7 +25,7 @@ function sampleTextPoints(rand: () => number) {
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
   ctx.fillStyle = "#fff";
   ctx.textBaseline = "middle";
-  ctx.font = "700 76px Arial, Helvetica, sans-serif";
+  ctx.font = "700 74px 'Courier New', Consolas, monospace";
 
   const lineHeight = 92;
   const startY = CANVAS_H / 2 - lineHeight;
@@ -63,6 +63,9 @@ function randomDustTarget(rand: () => number): [number, number, number] {
   ];
 }
 
+const TERMINAL_GREEN = new THREE.Color("#4dff8c");
+const NETWORK_BLUE = new THREE.Color("#bcd9ff");
+
 export default function ParticleText() {
   const pointsRef = useRef<THREE.Points>(null);
   const materialRef = useRef<THREE.PointsMaterial>(null);
@@ -92,7 +95,12 @@ export default function ParticleText() {
     const fadeOut = smoothstep(0.2, 0.34, scrollProgress);
     const opacity = Math.max(fadeIn - fadeOut, 0);
 
-    if (materialRef.current) materialRef.current.opacity = opacity;
+    if (materialRef.current) {
+      materialRef.current.opacity = opacity;
+      // The typed-out headline is terminal green; as it dissolves into the
+      // network it shifts toward the network's electric blue.
+      materialRef.current.color.lerpColors(TERMINAL_GREEN, NETWORK_BLUE, dissolveT);
+    }
     if (opacity <= 0) return;
 
     const posAttr = geometry.attributes.position;
@@ -115,7 +123,7 @@ export default function ParticleText() {
       <PointMaterial
         ref={materialRef}
         transparent
-        color="#bcd9ff"
+        color="#4dff8c"
         size={0.026}
         sizeAttenuation
         depthWrite={false}

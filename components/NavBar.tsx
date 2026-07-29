@@ -4,29 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocaleStore } from "@/lib/locale-store";
 import { dictionary } from "@/lib/i18n";
-import { useMusicStore } from "@/lib/music-store";
 
 export default function NavBar() {
   const pathname = usePathname();
   const locale = useLocaleStore((s) => s.locale);
   const toggleLocale = useLocaleStore((s) => s.toggleLocale);
   const t = dictionary[locale];
-
-  const entered = useMusicStore((s) => s.entered);
-  const player = useMusicStore((s) => s.player);
-  const muted = useMusicStore((s) => s.muted);
-  const setMuted = useMusicStore((s) => s.setMuted);
-
-  const toggleMuted = () => {
-    if (!player) return;
-    if (muted) {
-      player.unMute();
-      setMuted(false);
-    } else {
-      player.mute();
-      setMuted(true);
-    }
-  };
 
   const links = [
     { href: "/", label: t.nav.projects },
@@ -62,22 +45,6 @@ export default function NavBar() {
               </li>
             );
           })}
-          {entered && player && (
-            <li>
-              <button
-                type="button"
-                onClick={toggleMuted}
-                aria-label={muted ? "Unmute music" : "Mute music"}
-                className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
-                  muted
-                    ? "border-white/15 text-muted hover:border-white/30 hover:text-white"
-                    : "border-accent-soft/40 text-accent-soft hover:border-accent-soft/70"
-                }`}
-              >
-                ♪
-              </button>
-            </li>
-          )}
           <li>
             <button
               type="button"

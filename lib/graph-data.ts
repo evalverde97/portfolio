@@ -19,17 +19,16 @@ export type ProjectNode = {
   longDescription: string;
   liveUrl?: string;
   githubUrl?: string;
+  instagramUrl?: string;
+  /** Overrides the default "Ver proyecto" label on the primary CTA button. */
+  ctaLabel?: string;
   position: Vec3;
   connections: string[];
   /** For umbrella nodes (like AI Projects) that bundle several standalone builds. */
   subProjects?: SubProject[];
-  /**
-   * Ids of child ProjectNodes nested under this one. Umbrella nodes with
-   * children don't navigate to a project page on click — they toggle their
-   * children's visibility as sub-nodes in the 3D network instead.
-   */
+  /** Ids of child ProjectNodes nested under this one (always visible, smaller). */
   children?: string[];
-  /** Set on a node that only appears once its parent has been expanded. */
+  /** Set on a sub-node to link it back to its umbrella parent. */
   parentId?: string;
 };
 
@@ -69,12 +68,12 @@ export const projectNodes: ProjectNode[] = [
     category: "Ventures",
     tech: [],
     year: "",
-    description: "Online stores and marketplaces built end to end.",
+    description: "Digital ecommerce brands.",
     longDescription:
-      "The ecommerce ventures — from the first dropshipping tests to AuraX and a multi-vendor marketplace. Click to explore each one.",
+      "The ecommerce ventures — digital brands selling directly through their own storefronts and Instagram.",
     position: [2.473, 0.803, 0.5],
     connections: ["ai-projects", "trading", "dollars", "experiments"],
-    children: ["aurax", "marketplace", "dropshipping"],
+    children: ["aurax-labs", "ocean-force"],
   },
   {
     id: "trading",
@@ -108,58 +107,80 @@ export const projectNodes: ProjectNode[] = [
     slug: "experiments",
     title: "Experiments",
     category: "Playground",
-    tech: ["Three.js", "WebGL", "GSAP"],
-    year: "2026",
-    description: "Small interactive experiments and visual prototypes.",
+    tech: [],
+    year: "",
+    description: "Ideas, writing and ventures that don't fit elsewhere.",
     longDescription:
-      "A playground of small interactive builds — visual experiments, motion studies and interface ideas that don't need a product around them to exist.",
+      "A playground for things that don't need a product around them to exist — essays, side ventures, visual experiments.",
     position: [1.529, -2.103, -0.6],
     connections: ["ai-projects", "ecommerce", "trading", "dollars"],
+    children: ["estados-alterados-de-consciencia", "valketing"],
   },
 
-  // --- Sub-nodes, revealed when their parent is clicked ---
+  // --- Sub-nodes, always visible (smaller/dimmer until hovered) ---
   {
-    id: "aurax",
-    slug: "aurax",
-    title: "AuraX",
+    id: "aurax-labs",
+    slug: "aurax-labs",
+    title: "AuraX Labs",
     category: "Ecommerce",
-    tech: ["React", "Node.js", "PostgreSQL"],
-    year: "2026",
-    description: "Ecommerce focused on health and self-care.",
+    tech: [],
+    year: "",
+    description:
+      "Venta de productos para el cuidado y mantenimiento de la estética.",
     longDescription:
-      "AuraX is a direct-to-consumer ecommerce platform for health and self-care products. Built end to end — storefront, checkout, inventory and an admin dashboard — with a focus on fast page loads and a calm, editorial visual language.",
-    liveUrl: "https://example.com/aurax",
+      "AuraX Labs es un negocio digital de venta de productos para el cuidado y mantenimiento de la estética.",
+    liveUrl: "https://www.auraxlabs.com",
+    instagramUrl: "https://www.instagram.com/aurax_labs",
     position: [2.473, 2.003, 0.8],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
   {
-    id: "marketplace",
-    slug: "marketplace",
-    title: "Marketplace",
+    id: "ocean-force",
+    slug: "ocean-force",
+    title: "Ocean Force",
     category: "Ecommerce",
-    tech: ["React", "Node.js", "Stripe"],
-    year: "2025",
-    description: "Multi-vendor marketplace with integrated payments.",
+    tech: [],
+    year: "",
+    description: "Venta de suplementos deportivos.",
     longDescription:
-      "A multi-vendor marketplace connecting independent sellers with buyers, with integrated payments, seller dashboards and order fulfillment tracking.",
-    position: [3.573, 0.203, 0.2],
+      "Ocean Force es un negocio digital de venta de suplementos deportivos.",
+    instagramUrl: "https://www.instagram.com/oceanforcefit",
+    position: [1.373, 0.203, 0.9],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
   {
-    id: "dropshipping",
-    slug: "dropshipping",
-    title: "Dropshipping",
-    category: "Ecommerce",
-    tech: ["Shopify", "React", "Ads"],
-    year: "2023",
-    description: "First ecommerce ventures — where it all started.",
+    id: "estados-alterados-de-consciencia",
+    slug: "estados-alterados-de-consciencia",
+    title: "Estados Alterados De Consciencia",
+    category: "Experiments",
+    tech: [],
+    year: "",
+    description:
+      "Ensayo sobre el despertar de consciencia y experiencias personales.",
     longDescription:
-      "The first ecommerce stores — testing products, running ads and learning the fundamentals of online retail that later shaped AuraX and Marketplace.",
-    position: [1.373, 0.203, 0.9],
-    connections: ["ecommerce"],
-    parentId: "ecommerce",
+      "Un documento donde Ezequiel plantea sus ideas acerca del despertar de consciencia y comparte experiencias personales.",
+    liveUrl:
+      "https://docs.google.com/document/d/1nJRp5GBz4KtyqKgny62teataXMy7I2PN3BdtjKIC_d0/edit?tab=t.0",
+    ctaLabel: "Leer el ensayo",
+    position: [0.429, -1.603, -0.2],
+    connections: ["experiments"],
+    parentId: "experiments",
+  },
+  {
+    id: "valketing",
+    slug: "valketing",
+    title: "Valketing",
+    category: "Experiments",
+    tech: [],
+    year: "",
+    description: "Agencia de marketing digital.",
+    longDescription: "Valketing es una agencia de marketing digital.",
+    liveUrl: "https://valketing.netlify.app/",
+    position: [2.529, -1.503, -1.0],
+    connections: ["experiments"],
+    parentId: "experiments",
   },
   {
     id: "doll-art",
@@ -168,9 +189,10 @@ export const projectNodes: ProjectNode[] = [
     category: "Doll-Ars",
     tech: [],
     year: "",
-    description: "Venta de arte.",
+    description: "Venta y exposición de arte.",
     longDescription:
-      "Doll-Art es la rama de Doll-Ars dedicada a la venta de arte.",
+      "Doll-Art es la rama de Doll-Ars dedicada a la venta y exposición de arte.",
+    instagramUrl: "https://www.instagram.com/doll.art___",
     position: [-2.629, -0.903, 0.8],
     connections: ["dollars"],
     parentId: "dollars",
@@ -185,6 +207,8 @@ export const projectNodes: ProjectNode[] = [
     description: "Agencia de modelos.",
     longDescription:
       "Doll-Ars Agency es la agencia de modelos dentro del ecosistema Doll-Ars.",
+    liveUrl: "https://doll-ars.netlify.app",
+    instagramUrl: "https://www.instagram.com/dollars_agency",
     position: [-0.329, -1.803, 0.1],
     connections: ["dollars"],
     parentId: "dollars",

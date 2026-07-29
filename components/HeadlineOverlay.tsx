@@ -9,9 +9,7 @@ const SCRIPT = [
   "Soy",
   "Ezequiel Valverde.",
   "",
-  "Software Developer",
-  "Entrepreneur",
-  "AI Builder",
+  "Welcome to my head",
 ];
 
 const FULL_TEXT = SCRIPT.join("\n");

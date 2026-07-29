@@ -21,10 +21,14 @@ export default async function ProjectPage({
     .map((n) => ({
       name: n.title,
       description: n.description,
-      url: n.liveUrl,
+      url: n.liveUrl ?? n.instagramUrl,
     }));
   const includedItems = [...(project.subProjects ?? []), ...childItems];
-  const hasMockup = Boolean(project.liveUrl);
+  // The browser-chrome mockup only makes sense for an actual website —
+  // skip it for links to documents, docs, etc.
+  const isWebsiteLink =
+    !!project.liveUrl && !project.liveUrl.includes("docs.google.com");
+  const hasMockup = isWebsiteLink;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-black px-6 pb-24 pt-32 sm:px-12 lg:px-20">
@@ -75,16 +79,31 @@ export default async function ProjectPage({
             </div>
           )}
 
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black transition-transform hover:-translate-y-0.5"
-            >
-              Ver proyecto
-              <span aria-hidden>↗</span>
-            </a>
+          {(project.liveUrl || project.instagramUrl) && (
+            <div className="flex flex-wrap items-center gap-3">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black transition-transform hover:-translate-y-0.5"
+                >
+                  {project.ctaLabel ?? "Ver proyecto"}
+                  <span aria-hidden>↗</span>
+                </a>
+              )}
+              {project.instagramUrl && (
+                <a
+                  href={project.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/40"
+                >
+                  Instagram
+                  <span aria-hidden>↗</span>
+                </a>
+              )}
+            </div>
           )}
         </div>
 

@@ -7,6 +7,8 @@ import * as THREE from "three";
 import type { ProjectNode as ProjectNodeData } from "@/lib/graph-data";
 import { useExperienceStore } from "@/lib/experience-store";
 import { smoothstep } from "@/lib/camera-path";
+import { useLocaleStore } from "@/lib/locale-store";
+import { pluralProjects } from "@/lib/i18n";
 
 const tmpScale = new THREE.Vector3();
 
@@ -25,6 +27,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
 
   const setHoveredNodeId = useExperienceStore((s) => s.setHoveredNodeId);
   const beginTravelTo = useExperienceStore((s) => s.beginTravelTo);
+  const locale = useLocaleStore((s) => s.locale);
 
   useFrame((state) => {
     const { scrollProgress, hoveredNodeId, transitionPhase, reducedMotion } =
@@ -96,7 +99,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
             {hasChildren && node.tech.length === 0 ? (
               <p className="mt-2 text-xs text-accent-soft">
                 {node.children!.length}{" "}
-                {node.children!.length === 1 ? "proyecto" : "proyectos"}
+                {pluralProjects(node.children!.length, locale)}
               </p>
             ) : (
               <ul className="mt-2 space-y-0.5 text-xs text-accent-soft">

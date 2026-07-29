@@ -2,9 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useExperienceStore } from "@/lib/experience-store";
+import { useLocaleStore } from "@/lib/locale-store";
+import { dictionary } from "@/lib/i18n";
 
 export default function BackToUniverse() {
   const router = useRouter();
+  const locale = useLocaleStore((s) => s.locale);
 
   const handleBack = () => {
     useExperienceStore.getState().beginReturn();
@@ -20,7 +23,7 @@ export default function BackToUniverse() {
       className="group inline-flex w-fit items-center gap-2 text-sm text-muted transition-colors hover:text-white"
     >
       <span className="transition-transform group-hover:-translate-x-1">←</span>
-      Volver al universo
+      {dictionary[locale].backToUniverse}
     </button>
   );
 }

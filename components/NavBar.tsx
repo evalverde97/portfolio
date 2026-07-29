@@ -2,15 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const links = [
-  { href: "/", label: "Projects" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
+import { useLocaleStore } from "@/lib/locale-store";
+import { dictionary } from "@/lib/i18n";
 
 export default function NavBar() {
   const pathname = usePathname();
+  const locale = useLocaleStore((s) => s.locale);
+  const toggleLocale = useLocaleStore((s) => s.toggleLocale);
+  const t = dictionary[locale];
+
+  const links = [
+    { href: "/", label: t.nav.projects },
+    { href: "/about", label: t.nav.about },
+    { href: "/contact", label: t.nav.contact },
+  ];
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center">
@@ -40,6 +45,16 @@ export default function NavBar() {
               </li>
             );
           })}
+          <li>
+            <button
+              type="button"
+              onClick={toggleLocale}
+              aria-label="Toggle language"
+              className="rounded-full border border-white/15 px-2.5 py-1 text-xs tracking-wider text-muted transition-colors hover:border-white/30 hover:text-white"
+            >
+              {locale === "es" ? "EN" : "ES"}
+            </button>
+          </li>
         </ul>
       </nav>
     </header>

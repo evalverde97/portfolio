@@ -1,9 +1,28 @@
 "use client";
 
+import Image from "next/image";
 import type { ProjectNode } from "@/lib/graph-data";
 import { useLocaleStore } from "@/lib/locale-store";
 import { dictionary, pick } from "@/lib/i18n";
 import BackToUniverse from "@/components/BackToUniverse";
+
+function hostnameLabel(url?: string) {
+  if (!url) return "";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+function instagramHandle(url: string) {
+  try {
+    const path = new URL(url).pathname.replace(/^\/+|\/+$/g, "");
+    return path.split("/")[0] || url;
+  } catch {
+    return url;
+  }
+}
 
 export default function ProjectPageContent({
   project,
@@ -23,6 +42,13 @@ export default function ProjectPageContent({
     url: n.liveUrl ?? n.instagramUrl,
   }));
 
+  // Real websites get a browser mockup (with a real screenshot once we have
+  // one); Instagram-only businesses get an Instagram-style card instead of
+  // a fake browser window pretending to be a site that doesn't exist.
+  const hasWebsite = hasMockup;
+  const instagramOnly = !hasWebsite && !!project.instagramUrl;
+  const hasRightPanel = hasWebsite || instagramOnly;
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-black px-6 pb-24 pt-32 sm:px-12 lg:px-20">
       <div
@@ -35,7 +61,7 @@ export default function ProjectPageContent({
 
       <div
         className={`relative mx-auto grid max-w-6xl gap-16 ${
-          hasMockup ? "lg:grid-cols-2 lg:items-center" : "max-w-2xl"
+          hasRightPanel ? "lg:grid-cols-2 lg:items-center" : "max-w-2xl"
         }`}
       >
         <div className="flex flex-col gap-8">
@@ -108,7 +134,7 @@ export default function ProjectPageContent({
           )}
         </div>
 
-        {hasMockup && (
+        {hasWebsite && (
           <div className="relative">
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/60 backdrop-blur-sm">
               <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
@@ -116,14 +142,54 @@ export default function ProjectPageContent({
                 <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
                 <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
                 <span className="ml-3 text-xs text-muted">
-                  {project.title.toLowerCase().replace(/\s+/g, "")}.com
+                  {hostnameLabel(project.liveUrl)}
                 </span>
               </div>
-              <div className="grid gap-3 p-6 sm:grid-cols-3">
+              <div className="relative aspect-[4/3] w-full">
+                {project.screenshotUrl ? (
+                  <Image
+                    src={project.screenshotUrl}
+                    alt={project.title}
+                    fill
+                    className="object-cover object-top"
+                  />
+                ) : (
+                  <div
+                    className="flex h-full w-full items-center justify-center"
+                    style={{
+                      background:
+                        "linear-gradient(155deg, rgba(77,159,255,0.14), rgba(255,255,255,0.02))",
+                    }}
+                  >
+                    <span className="text-xs text-muted">{t.previewSoon}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {instagramOnly && (
+          <div className="relative">
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/60 backdrop-blur-sm">
+              <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-accent to-accent-soft text-xs font-semibold text-black">
+                  {project.title.charAt(0)}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-white">
+                    @{instagramHandle(project.instagramUrl!)}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted">
+                    {t.instagram}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-1 p-1">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="aspect-[3/4] rounded-lg border border-white/10"
+                    className="aspect-square"
                     style={{
                       background:
                         "linear-gradient(155deg, rgba(77,159,255,0.18), rgba(255,255,255,0.03))",

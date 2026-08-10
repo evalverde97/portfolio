@@ -27,6 +27,8 @@ export const dictionary = {
     status: { building: "En construcción", comingSoon: "Próximamente" },
     headline: ["Hola.", "Soy", "Ezequiel Valverde.", "", "Bienvenido a mi cabeza"],
     tagline: ["Cada idea empieza como un nodo.", "Explorá mi universo."],
+    previewSoon: "Vista previa próximamente",
+    followOn: "Seguir en",
   },
   en: {
     nav: { projects: "Projects", about: "About", contact: "Contact" },
@@ -47,6 +49,8 @@ export const dictionary = {
     status: { building: "Building", comingSoon: "Coming soon" },
     headline: ["Hi.", "I'm", "Ezequiel Valverde.", "", "Welcome to my head"],
     tagline: ["Every idea begins as a node.", "Explore my universe."],
+    previewSoon: "Preview coming soon",
+    followOn: "Follow on",
   },
 } as const;
 

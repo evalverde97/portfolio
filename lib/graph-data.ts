@@ -16,6 +16,8 @@ export type ProjectNode = {
   liveUrl?: string;
   githubUrl?: string;
   instagramUrl?: string;
+  /** Local path (e.g. "/images/vuelapp.png") to a real screenshot of the site. */
+  screenshotUrl?: string;
   /** Overrides the default "Ver proyecto" label on the primary CTA button. */
   ctaLabel?: Bilingual;
   /** Shows a small status badge ("Building" / "Coming soon") on the project page. */

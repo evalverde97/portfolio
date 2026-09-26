@@ -8,6 +8,8 @@ import ParticleText from "./ParticleText";
 import NeuralNetwork from "./NeuralNetwork";
 import ProjectNodes from "./ProjectNodes";
 import PortalTransition from "./PortalTransition";
+import BrainContour from "./BrainContour";
+import { NETWORK_DEPTH } from "@/lib/brain-geometry";
 import { isMobileViewport } from "@/lib/device";
 
 export default function Experience() {
@@ -26,8 +28,11 @@ export default function Experience() {
       <CameraRig />
       <Suspense fallback={null}>
         <ParticleText />
-        <NeuralNetwork />
-        <ProjectNodes />
+        <BrainContour />
+        <group position={[0, 0, NETWORK_DEPTH]}>
+          <NeuralNetwork />
+          <ProjectNodes />
+        </group>
       </Suspense>
       <PortalTransition />
       <EffectComposer multisampling={0}>

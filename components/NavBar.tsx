@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLocaleStore } from "@/lib/locale-store";
 import { dictionary } from "@/lib/i18n";
 import { useMusicStore } from "@/lib/music-store";
+import { exploreProjects } from "./HeadlineOverlay";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -37,14 +38,14 @@ export default function NavBar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex justify-center">
       <nav
-        className="mt-4 flex w-[min(94%,720px)] items-center justify-between rounded-full border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-md sm:px-6"
+        className="portfolio-nav"
         aria-label="Primary"
       >
         <Link
           href="/"
-          className="text-sm font-medium tracking-[0.2em] text-white transition-colors hover:text-accent"
+          className="portfolio-logo"
         >
-          EV
+          ev<span>.</span>
         </Link>
         <ul className="flex items-center gap-3 text-xs text-muted sm:gap-6 sm:text-sm">
           {links.map((link) => {
@@ -52,7 +53,10 @@ export default function NavBar() {
             return (
               <li key={link.href}>
                 <Link
-                  href={link.href}
+                  href={link.href === "/" && pathname !== "/" ? "/?from=project" : link.href}
+                  onClick={(e) => {
+                    if (link.href === "/" && pathname === "/") { e.preventDefault(); exploreProjects(); }
+                  }}
                   className={`transition-colors hover:text-white ${
                     active ? "text-white" : ""
                   }`}

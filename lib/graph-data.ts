@@ -18,6 +18,9 @@ export type ProjectNode = {
   instagramUrl?: string;
   /** Local path (e.g. "/images/vuelapp.png") to a real screenshot of the site. */
   screenshotUrl?: string;
+  screenshots?: { src: string; caption: Bilingual }[];
+  experience?: Bilingual;
+  screenshotSource?: "website" | "instagram" | "document";
   /** Overrides the default "Ver proyecto" label on the primary CTA button. */
   ctaLabel?: Bilingual;
   /** Shows a small status badge ("Building" / "Coming soon") on the project page. */
@@ -33,9 +36,8 @@ export type ProjectNode = {
 /**
  * Featured project nodes — placeholder content until Ezequiel supplies the
  * real project data. Five top-level nodes (AI Projects, E-commerce,
- * Trading, Doll-Ars, Experiments) sit in a pentagon around the network
- * center, fully interconnected; each umbrella bundles related ventures as
- * sub-nodes that only appear once their parent is clicked.
+ * Software Development, Doll-Ars, Experiments) form asymmetric clusters joined by sparse
+ * neural paths. Each umbrella retains its smaller related project nodes.
  */
 export const projectNodes: ProjectNode[] = [
   {
@@ -53,8 +55,8 @@ export const projectNodes: ProjectNode[] = [
       es: "Un conjunto en evolución de productos y experimentos con IA — desde automatización de contenido hasta agentes conversacionales — explorando cómo los modelos de lenguaje pueden integrarse en flujos de trabajo reales y cotidianos.",
       en: "An evolving set of AI-driven products and experiments — from content automation to conversational agents — exploring how large language models can be embedded into real, everyday workflows.",
     },
-    position: [-2.473, 0.803, -0.6],
-    connections: ["ecommerce", "trading", "dollars", "experiments"],
+    position: [-2.2, 1.35, -0.6],
+    connections: ["software-development", "dollars"],
     children: ["vuelapp"],
   },
   {
@@ -72,27 +74,28 @@ export const projectNodes: ProjectNode[] = [
       es: "Los emprendimientos de ecommerce — marcas digitales que venden directo a través de su propia tienda e Instagram.",
       en: "The ecommerce ventures — digital brands selling directly through their own storefronts and Instagram.",
     },
-    position: [2.473, 0.803, 0.5],
-    connections: ["ai-projects", "trading", "dollars", "experiments"],
+    position: [2.45, 0.1, 0.25],
+    connections: ["software-development"],
     children: ["aurax-labs", "ocean-force"],
   },
   {
-    id: "trading",
-    slug: "trading",
-    title: "Trading",
-    category: { es: "Automatización", en: "Automation" },
-    tech: ["Python", "WebSocket", "AWS"],
-    year: "2025",
-    description: {
-      es: "Ejecución automatizada de estrategias en distintos mercados.",
-      en: "Automated strategy execution across markets.",
-    },
+    id: "software-development",
+    slug: "software-development",
+    title: "Software Development",
+    category: { es: "Desarrollo de software", en: "Software development" },
+    tech: [], year: "",
+    description: { es: "Sitios, experiencias digitales y desarrollo de productos.", en: "Websites, digital experiences and product development." },
     longDescription: {
-      es: "Trading basado en reglas — sistemas que monitorean varios mercados en tiempo real y ejecutan estrategias automáticamente, con límites de riesgo, backtesting y alertas incorporados.",
-      en: "Rules-based trading — systems that watch multiple markets in real time and execute strategies automatically, with risk limits, backtesting and alerting built in.",
+      es: "Desarrollo experiencias digitales que conectan diseño, interacción y funcionalidad. Acá podés explorar algunos de los sitios que construí.",
+      en: "I develop digital experiences that connect design, interaction and functionality. Explore some of the websites I have built.",
     },
-    position: [0, 2.6, 0.9],
-    connections: ["ai-projects", "ecommerce", "dollars", "experiments"],
+    experience: {
+      es: "Trabajé durante 3 años como desarrollador en MercadoLibre, una empresa multinacional, participando en el desarrollo del CRM que se utilizaba en la compañía.",
+      en: "I worked for 3 years as a developer at MercadoLibre, a multinational company, contributing to the development of the CRM used within the company.",
+    },
+    children: ["contrabando", "maestro-noel", "lenghi"],
+    position: [0.6, 2.35, -0.15],
+    connections: ["ai-projects", "ecommerce"],
   },
   {
     id: "dollars",
@@ -109,9 +112,9 @@ export const projectNodes: ProjectNode[] = [
       es: "Doll-Ars es una entidad con varios negocios a cargo. Hacé click para explorar cada uno.",
       en: "Doll-Ars is an entity with several businesses under it. Click to explore each one.",
     },
-    position: [-1.529, -2.103, 0.5],
-    connections: ["ai-projects", "ecommerce", "trading", "experiments"],
-    children: ["doll-art", "doll-ars-agency", "doll-ars-concierge"],
+    position: [-1.85, -1.4, 0.4],
+    connections: ["ai-projects", "experiments"],
+    children: ["doll-art", "doll-ars-agency"],
   },
   {
     id: "experiments",
@@ -128,10 +131,107 @@ export const projectNodes: ProjectNode[] = [
       es: "Un espacio para cosas que no necesitan un producto alrededor para existir — ensayos, emprendimientos paralelos, experimentos visuales.",
       en: "A playground for things that don't need a product around them to exist — essays, side ventures, visual experiments.",
     },
-    position: [1.529, -2.103, -0.6],
-    connections: ["ai-projects", "ecommerce", "trading", "dollars"],
+    position: [1.2, -2.2, -0.8],
+    connections: ["dollars"],
     children: ["estados-alterados-de-consciencia", "valketing"],
   },
+
+  {
+  "id": "contrabando",
+  "slug": "contrabando",
+  "title": "Contrabando Clothing Brand",
+  "liveUrl": "https://contrabando23.netlify.app/",
+  "category": {
+    "es": "Desarrollo web",
+    "en": "Web development"
+  },
+  "tech": [],
+  "year": "",
+  "description": {
+    "es": "Sitio para una marca de indumentaria, con una entrada inmersiva al depósito y exploración de prendas.",
+    "en": "A clothing brand website with an immersive warehouse entrance and garment exploration."
+  },
+  "longDescription": {
+    "es": "Sitio para una marca de indumentaria, con una entrada inmersiva al depósito y exploración de prendas.",
+    "en": "A clothing brand website with an immersive warehouse entrance and garment exploration."
+  },
+    screenshotUrl: "/images/projects/contrabando-hero.webp",
+    screenshotSource: "website",
+    screenshots: [{"src":"/images/projects/contrabando-hero.webp","caption":{"es":"Página de inicio","en":"Homepage"}},{"src":"/images/projects/contrabando-detail.webp","caption":{"es":"Exploración del sitio","en":"Website detail"}}],
+  "position": [
+    -0.9,
+    3.25,
+    -0.7
+  ],
+  "connections": [
+    "software-development"
+  ],
+  "parentId": "software-development"
+},
+  {
+  "id": "maestro-noel",
+  "slug": "maestro-noel",
+  "title": "Maestro Noel Services",
+  "liveUrl": "https://maestronoel.com/",
+  "category": {
+    "es": "Desarrollo web",
+    "en": "Web development"
+  },
+  "tech": [],
+  "year": "",
+  "description": {
+    "es": "Sitio de servicios con presentación de propuestas, preguntas frecuentes y acceso al contacto.",
+    "en": "A services website presenting its offerings, frequently asked questions and contact options."
+  },
+  "longDescription": {
+    "es": "Sitio de servicios con presentación de propuestas, preguntas frecuentes y acceso al contacto.",
+    "en": "A services website presenting its offerings, frequently asked questions and contact options."
+  },
+    screenshotUrl: "/images/projects/maestro-noel-hero.webp",
+    screenshotSource: "website",
+    screenshots: [{"src":"/images/projects/maestro-noel-hero.webp","caption":{"es":"Página de inicio","en":"Homepage"}},{"src":"/images/projects/maestro-noel-detail.webp","caption":{"es":"Exploración del sitio","en":"Website detail"}}],
+  "position": [
+    1.4,
+    3.35,
+    -0.9
+  ],
+  "connections": [
+    "software-development"
+  ],
+  "parentId": "software-development"
+},
+  {
+  "id": "lenghi",
+  "slug": "lenghi",
+  "title": "Lenghi Portfolio",
+  "liveUrl": "https://lenghi.netlify.app/",
+  "category": {
+    "es": "Desarrollo web",
+    "en": "Web development"
+  },
+  "tech": [],
+  "year": "",
+  "description": {
+    "es": "Portfolio digital con presentación de LT Game, una galería de vistas previas y acceso a descargas.",
+    "en": "A digital portfolio presenting LT Game, a preview gallery and download links."
+  },
+  "longDescription": {
+    "es": "Portfolio digital con presentación de LT Game, una galería de vistas previas y acceso a descargas.",
+    "en": "A digital portfolio presenting LT Game, a preview gallery and download links."
+  },
+    screenshotUrl: "/images/projects/lenghi-hero.webp",
+    screenshotSource: "website",
+    screenshots: [{"src":"/images/projects/lenghi-hero.webp","caption":{"es":"Página de inicio","en":"Homepage"}},{"src":"/images/projects/lenghi-detail.webp","caption":{"es":"Exploración del sitio","en":"Website detail"}}],
+  "position": [
+    2.3,
+    2.6,
+    -0.65
+  ],
+  "connections": [
+    "software-development"
+  ],
+  "parentId": "software-development"
+},
 
   // --- Sub-nodes, always visible (smaller/dimmer until hovered) ---
   {
@@ -151,7 +251,10 @@ export const projectNodes: ProjectNode[] = [
     },
     liveUrl: "https://vuelapp.netlify.app/",
     statusKey: "building",
-    position: [-3.573, 2.003, -0.2],
+    screenshotUrl: "/images/projects/vuelapp-hero.webp",
+    screenshotSource: "website",
+    screenshots: [{"src":"/images/projects/vuelapp-hero.webp","caption":{"es":"Página de inicio","en":"Homepage"}},{"src":"/images/projects/vuelapp-detail.webp","caption":{"es":"Exploración del sitio","en":"Website detail"}}],
+    position: [-3.3, 2.3, -0.2],
     connections: ["ai-projects"],
     parentId: "ai-projects",
   },
@@ -172,7 +275,10 @@ export const projectNodes: ProjectNode[] = [
     },
     liveUrl: "https://www.auraxlabs.com",
     instagramUrl: "https://www.instagram.com/aurax_labs",
-    position: [2.473, 2.003, 0.8],
+    screenshotUrl: "/images/projects/aurax-labs-hero.webp",
+    screenshotSource: "instagram",
+    screenshots: [{"src":"/images/projects/aurax-labs-hero.webp","caption":{"es":"Perfil público en Instagram","en":"Public Instagram profile"}}],
+    position: [3.25, 1.45, -0.1],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
@@ -192,7 +298,10 @@ export const projectNodes: ProjectNode[] = [
       en: "Ocean Force is a digital business selling sports supplements.",
     },
     instagramUrl: "https://www.instagram.com/oceanforcefit",
-    position: [1.373, 0.203, 0.9],
+    screenshotUrl: "/images/projects/ocean-force-hero.webp",
+    screenshotSource: "instagram",
+    screenshots: [{"src":"/images/projects/ocean-force-hero.webp","caption":{"es":"Perfil público en Instagram","en":"Public Instagram profile"}}],
+    position: [3.35, -1.15, 0.5],
     connections: ["ecommerce"],
     parentId: "ecommerce",
   },
@@ -214,7 +323,10 @@ export const projectNodes: ProjectNode[] = [
     liveUrl:
       "https://docs.google.com/document/d/1nJRp5GBz4KtyqKgny62teataXMy7I2PN3BdtjKIC_d0/edit?tab=t.0",
     ctaLabel: { es: "Leer el ensayo", en: "Read the essay" },
-    position: [0.429, -1.603, -0.2],
+    screenshotUrl: "/images/projects/estados-alterados-de-consciencia-hero.webp",
+    screenshotSource: "document",
+    screenshots: [{ src: "/images/projects/estados-alterados-de-consciencia-hero.webp", caption: { es: "Vista del ensayo", en: "Essay preview" } }],
+    position: [0.25, -2.85, -0.3],
     connections: ["experiments"],
     parentId: "experiments",
   },
@@ -234,7 +346,10 @@ export const projectNodes: ProjectNode[] = [
       en: "Valketing is a digital marketing agency.",
     },
     liveUrl: "https://valketing.netlify.app/",
-    position: [2.529, -1.503, -1.0],
+    screenshotUrl: "/images/projects/valketing-hero.webp",
+    screenshotSource: "website",
+    screenshots: [{"src":"/images/projects/valketing-hero.webp","caption":{"es":"Página de inicio","en":"Homepage"}},{"src":"/images/projects/valketing-detail.webp","caption":{"es":"Exploración del sitio","en":"Website detail"}}],
+    position: [2.7, -2.7, -1.0],
     connections: ["experiments"],
     parentId: "experiments",
   },
@@ -254,7 +369,10 @@ export const projectNodes: ProjectNode[] = [
       en: "Doll-Art is the branch of Doll-Ars dedicated to selling and exhibiting art.",
     },
     instagramUrl: "https://www.instagram.com/doll.art___",
-    position: [-2.629, -0.903, 0.8],
+    screenshotUrl: "/images/projects/doll-art-hero.webp",
+    screenshotSource: "instagram",
+    screenshots: [{"src":"/images/projects/doll-art-hero.webp","caption":{"es":"Perfil público en Instagram","en":"Public Instagram profile"}}],
+    position: [-3.25, -0.45, 0.2],
     connections: ["dollars"],
     parentId: "dollars",
   },
@@ -272,29 +390,14 @@ export const projectNodes: ProjectNode[] = [
     },
     liveUrl: "https://doll-ars.netlify.app",
     instagramUrl: "https://www.instagram.com/dollars_agency",
-    position: [-0.329, -1.803, 0.1],
+    screenshotUrl: "/images/projects/doll-ars-agency-hero.webp",
+    screenshotSource: "website",
+    screenshots: [{"src":"/images/projects/doll-ars-agency-hero.webp","caption":{"es":"Página de inicio","en":"Homepage"}},{"src":"/images/projects/doll-ars-agency-detail.webp","caption":{"es":"Exploración del sitio","en":"Website detail"}}],
+    position: [-0.35, -0.65, 0.1],
     connections: ["dollars"],
     parentId: "dollars",
   },
-  {
-    id: "doll-ars-concierge",
-    slug: "doll-ars-concierge",
-    title: "Doll-Ars Concierge",
-    category: { es: "Doll-Ars", en: "Doll-Ars" },
-    tech: [],
-    year: "",
-    description: {
-      es: "Agencia de concierge, experiencias VIP.",
-      en: "Concierge agency, VIP experiences.",
-    },
-    longDescription: {
-      es: "Doll-Ars Concierge ofrece servicios de concierge y experiencias VIP.",
-      en: "Doll-Ars Concierge offers concierge services and VIP experiences.",
-    },
-    position: [-1.529, -3.403, 1.0],
-    connections: ["dollars"],
-    parentId: "dollars",
-  },
+
 ];
 
 export function getProjectBySlug(slug: string) {

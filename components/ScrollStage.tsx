@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useExperienceStore } from "@/lib/experience-store";
 
 const SCROLL_HEIGHT_VH = 500;
@@ -21,30 +23,46 @@ export default function ScrollStage() {
   const setScrollProgress = useExperienceStore((s) => s.setScrollProgress);
   const setNetworkSettled = useExperienceStore((s) => s.setNetworkSettled);
   const setReducedMotion = useExperienceStore((s) => s.setReducedMotion);
+  const reducedMotion = useExperienceStore((s) => s.reducedMotion);
   const transitionPhase = useExperienceStore((s) => s.transitionPhase);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const reduced = media.matches;
-    setReducedMotion(reduced);
+    const sync = () => setReducedMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, [setReducedMotion]);
 
+  useEffect(() => {
     const updateProgress = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const progress = max > 0 ? window.scrollY / max : 0;
       const clamped = Math.min(Math.max(progress, 0), 1);
       setScrollProgress(clamped);
-      setNetworkSettled(clamped > 0.55);
+      setNetworkSettled(clamped > 0.7);
     };
 
-    if (reduced) {
+    if (reducedMotion) {
       window.addEventListener("scroll", updateProgress, { passive: true });
+      window.addEventListener("resize", updateProgress);
       updateProgress();
-      return () => window.removeEventListener("scroll", updateProgress);
+      return () => {
+        window.removeEventListener("scroll", updateProgress);
+        window.removeEventListener("resize", updateProgress);
+      };
     }
 
     const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
     lenisRef.current = lenis;
-    lenis.on("scroll", updateProgress);
+    gsap.registerPlugin(ScrollTrigger);
+    const trigger = ScrollTrigger.create({
+      start: 0,
+      end: "max",
+      onUpdate: updateProgress,
+      onRefresh: updateProgress,
+    });
+    lenis.on("scroll", ScrollTrigger.update);
     updateProgress();
 
     let rafId = requestAnimationFrame(function raf(time) {
@@ -54,10 +72,11 @@ export default function ScrollStage() {
 
     return () => {
       cancelAnimationFrame(rafId);
+      trigger.kill();
       lenis.destroy();
       lenisRef.current = null;
     };
-  }, [setScrollProgress, setNetworkSettled, setReducedMotion]);
+  }, [setScrollProgress, setNetworkSettled, reducedMotion]);
 
   // Lock page scroll while a portal travel transition is in flight.
   useEffect(() => {

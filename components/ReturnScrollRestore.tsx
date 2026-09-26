@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useExperienceStore } from "@/lib/experience-store";
 
-const RETURN_PROGRESS = 0.62;
+const RETURN_PROGRESS = 0.78;
 
 /**
  * When arriving back at `/` from a project page (`?from=project`), skips the

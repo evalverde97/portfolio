@@ -1,130 +1,83 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Points, PointMaterial } from "@react-three/drei";
 import * as THREE from "three";
 import { useExperienceStore } from "@/lib/experience-store";
+import { useLocaleStore } from "@/lib/locale-store";
 import { smoothstep } from "@/lib/camera-path";
 import { mulberry32 } from "@/lib/random";
-import { isMobileViewport } from "@/lib/device";
+import { brainPaths } from "@/lib/brain-geometry";
 
-const LINES = ["Hola.", "Soy", "Ezequiel Valverde."];
-const CANVAS_W = 1024;
-const CANVAS_H = 384;
-const PLANE_WIDTH = 7.6;
+type Samples = { origins: Float32Array; dust: Float32Array; brain: Float32Array; positions: Float32Array };
 
-function sampleTextPoints(rand: () => number, step: number) {
+function sampleHeadline(): Samples | null {
+  const title = document.getElementById("particle-headline");
+  if (!title) return null;
+  const w = window.innerWidth, h = window.innerHeight;
   const canvas = document.createElement("canvas");
-  canvas.width = CANVAS_W;
-  canvas.height = CANVAS_H;
+  canvas.width = w; canvas.height = h;
   const ctx = canvas.getContext("2d");
-  if (!ctx) return { origins: new Float32Array(0), count: 0 };
-
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-  ctx.fillStyle = "#fff";
+  if (!ctx) return null;
+  ctx.fillStyle = "white";
   ctx.textBaseline = "middle";
-  ctx.font = "700 74px 'Courier New', Consolas, monospace";
-
-  const lineHeight = 92;
-  const startY = CANVAS_H / 2 - lineHeight;
-  LINES.forEach((line, i) => {
-    ctx.fillText(line, 24, startY + i * lineHeight);
-  });
-
-  const { data } = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H);
-  const positions: number[] = [];
-  const planeHeight = (PLANE_WIDTH * CANVAS_H) / CANVAS_W;
-
-  for (let y = 0; y < CANVAS_H; y += step) {
-    for (let x = 0; x < CANVAS_W; x += step) {
-      const alpha = data[(y * CANVAS_W + x) * 4 + 3];
-      if (alpha > 128) {
-        const worldX = (x / CANVAS_W - 0.5) * PLANE_WIDTH;
-        const worldY = -(y / CANVAS_H - 0.5) * planeHeight + 0.2;
-        const worldZ = (rand() - 0.5) * 0.4;
-        positions.push(worldX, worldY, worldZ);
-      }
-    }
+  ctx.textAlign = "center";
+  for (const line of title.children) {
+    const rect = line.getBoundingClientRect();
+    const style = getComputedStyle(line);
+    ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    ctx.letterSpacing = style.letterSpacing;
+    ctx.fillText(line.textContent ?? "", rect.x + rect.width / 2, rect.y + rect.height / 2);
   }
-
-  return { origins: new Float32Array(positions), count: positions.length / 3 };
+  const pixels = ctx.getImageData(0, 0, w, h).data;
+  const origins: number[] = [], dust: number[] = [], brain: number[] = [];
+  const curves = brainPaths().flat();
+  const rand = mulberry32(99);
+  const worldHeight = 2 * 6.5 * Math.tan(THREE.MathUtils.degToRad(45 / 2));
+  const unit = worldHeight / h;
+  const brainScale = Math.min(1, w / h * .92);
+  const step = w < 768 ? 4 : 5;
+  for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+    // Transparent background: only glyph pixels become particles.
+    if (pixels[(y * w + x) * 4 + 3] < 100) continue;
+    origins.push((x - w / 2) * unit, (h / 2 - y) * unit, 0);
+    const angle = rand() * Math.PI * 2, radius = 1 + rand() * 3;
+    dust.push(Math.cos(angle) * radius * brainScale, Math.sin(angle) * radius * .65, (rand() - .5) * 2);
+    const point = curves[Math.floor(rand() * curves.length)];
+    brain.push(point.x * brainScale, point.y * brainScale, point.z);
+  }
+  return { origins: new Float32Array(origins), dust: new Float32Array(dust), brain: new Float32Array(brain), positions: new Float32Array(origins) };
 }
-
-function randomDustTarget(rand: () => number): [number, number, number] {
-  const radius = 2.4 + rand() * 4.2;
-  const theta = rand() * Math.PI * 2;
-  const phi = Math.acos(rand() * 2 - 1);
-  return [
-    radius * Math.sin(phi) * Math.cos(theta),
-    radius * Math.sin(phi) * Math.sin(theta) * 0.6,
-    radius * Math.cos(phi) - 2,
-  ];
-}
-
-// Same neon celeste as the rest of the network — one accent color throughout.
-const PARTICLE_COLOR = "#9fc6ff";
 
 export default function ParticleText() {
-  const pointsRef = useRef<THREE.Points>(null);
-  const materialRef = useRef<THREE.PointsMaterial>(null);
-
-  const { origins, targets, count } = useMemo(() => {
-    const rand = mulberry32(99);
-    const { origins, count } = sampleTextPoints(rand, isMobileViewport() ? 5 : 3);
-    const targets = new Float32Array(count * 3);
-    for (let i = 0; i < count; i += 1) {
-      const [tx, ty, tz] = randomDustTarget(rand);
-      targets[i * 3] = tx;
-      targets[i * 3 + 1] = ty;
-      targets[i * 3 + 2] = tz;
-    }
-    return { origins, targets, count };
-  }, []);
-
-  const positions = useMemo(() => origins.slice(), [origins]);
-
+  const ref = useRef<THREE.Points>(null);
+  const material = useRef<THREE.PointsMaterial>(null);
+  const [samples, setSamples] = useState<Samples | null>(null);
+  const locale = useLocaleStore((s) => s.locale);
+  useEffect(() => {
+    let active = true;
+    const sample = () => { if (active) setSamples(sampleHeadline()); };
+    void document.fonts.ready.then(sample);
+    window.addEventListener("resize", sample);
+    return () => { active = false; window.removeEventListener("resize", sample); };
+  }, [locale]);
   useFrame(() => {
-    const geometry = pointsRef.current?.geometry;
-    if (!geometry || count === 0) return;
-
-    const { scrollProgress } = useExperienceStore.getState();
-    const dissolveT = smoothstep(0, 0.18, scrollProgress);
-    const fadeIn = smoothstep(0, 0.03, scrollProgress);
-    const fadeOut = smoothstep(0.2, 0.34, scrollProgress);
-    const opacity = Math.max(fadeIn - fadeOut, 0);
-
-    if (materialRef.current) materialRef.current.opacity = opacity;
-    if (opacity <= 0) return;
-
-    const posAttr = geometry.attributes.position;
-    const array = posAttr.array as Float32Array;
-    for (let i = 0; i < count; i += 1) {
-      const ix = i * 3;
-      array[ix] = origins[ix] + (targets[ix] - origins[ix]) * dissolveT;
-      array[ix + 1] =
-        origins[ix + 1] + (targets[ix + 1] - origins[ix + 1]) * dissolveT;
-      array[ix + 2] =
-        origins[ix + 2] + (targets[ix + 2] - origins[ix + 2]) * dissolveT;
+    if (!samples || !ref.current || !material.current) return;
+    const { scrollProgress: p, reducedMotion } = useExperienceStore.getState();
+    material.current.opacity = reducedMotion ? 0 : smoothstep(.015, .065, p) * (1 - smoothstep(.42, .57, p));
+    if (!material.current.opacity) return;
+    const scatter = smoothstep(.04, .2, p), form = smoothstep(.18, .34, p);
+    const attr = ref.current.geometry.attributes.position;
+    const a = attr.array as Float32Array;
+    for (let i = 0; i < a.length; i++) {
+      const spread = THREE.MathUtils.lerp(samples.origins[i], samples.dust[i], scatter);
+      a[i] = THREE.MathUtils.lerp(spread, samples.brain[i], form);
     }
-    posAttr.needsUpdate = true;
+    attr.needsUpdate = true;
   });
-
-  if (count === 0) return null;
-
-  return (
-    <Points ref={pointsRef} positions={positions} stride={3}>
-      <PointMaterial
-        ref={materialRef}
-        transparent
-        color={PARTICLE_COLOR}
-        size={0.026}
-        sizeAttenuation
-        depthWrite={false}
-        opacity={0}
-        blending={THREE.AdditiveBlending}
-      />
-    </Points>
-  );
+  if (!samples) return null;
+  return <points ref={ref} frustumCulled={false}>
+    <bufferGeometry><bufferAttribute attach="attributes-position" args={[samples.positions, 3]} /></bufferGeometry>
+    <pointsMaterial ref={material} color="#9fc6ff" transparent opacity={0} size={.016} depthWrite={false} blending={THREE.AdditiveBlending} />
+  </points>;
 }

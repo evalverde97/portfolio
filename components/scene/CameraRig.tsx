@@ -3,9 +3,9 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera, Vector3 } from "three";
 import { useExperienceStore } from "@/lib/experience-store";
-import { getCameraKeyframe } from "@/lib/camera-path";
+import { getCameraKeyframe, smoothstep } from "@/lib/camera-path";
 
-const lookTarget = new Vector3(0, 0.2, 0);
+const lookTarget = new Vector3(0, 0, -12);
 
 export default function CameraRig() {
   const { camera } = useThree();
@@ -16,7 +16,11 @@ export default function CameraRig() {
 
     if (transitionPhase !== "idle") return; // PortalTransition owns the camera
 
-    const { position, fov } = getCameraKeyframe(scrollProgress);
+    const { position, fov } = getCameraKeyframe(reducedMotion ? (scrollProgress < .6 ? 0 : 1) : scrollProgress);
+    // Fit the full graph on portrait screens without cropping edge nodes.
+    if (camera instanceof PerspectiveCamera && camera.aspect < 1) {
+      position.z += (1 / camera.aspect - 1) * 7 * smoothstep(.48, .65, scrollProgress);
+    }
 
     if (!reducedMotion && scrollProgress > 0.55) {
       const breathe = Math.sin(state.clock.elapsedTime * 0.35) * 0.08;

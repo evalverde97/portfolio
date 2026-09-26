@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { useExperienceStore } from "@/lib/experience-store";
 import { projectNodes } from "@/lib/graph-data";
 import { mulberry32 } from "@/lib/random";
+import { NETWORK_DEPTH } from "@/lib/brain-geometry";
 
 const STREAK_COUNT = 260;
 
@@ -94,6 +95,8 @@ export default function PortalTransition() {
       }
 
       const target = new THREE.Vector3(...node.position);
+      target.z += NETWORK_DEPTH;
+      burstRef.current?.position.copy(camera.position);
       const tl = gsap.timeline({
         defaults: { ease: "power2.inOut" },
         onComplete: finish,

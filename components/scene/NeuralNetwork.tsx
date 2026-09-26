@@ -30,7 +30,7 @@ export default function NeuralNetwork() {
   } = useMemo(() => {
     const mobile = isMobileViewport();
     const field = generateAmbientField(mobile ? 38 : 70);
-    const edges = generateAmbientEdges(field, mobile ? 2 : 3);
+    const edges = generateAmbientEdges(field, 1);
 
     const basePositions = new Float32Array(field.length * 3);
     field.forEach((p, i) => {
@@ -78,10 +78,10 @@ export default function NeuralNetwork() {
 
   useFrame((state) => {
     const { scrollProgress, reducedMotion } = useExperienceStore.getState();
-    const fadeIn = smoothstep(0.18, 0.36, scrollProgress);
+    const fadeIn = smoothstep(0.5, 0.68, scrollProgress);
 
     if (nodeMaterialRef.current) nodeMaterialRef.current.opacity = fadeIn * 0.9;
-    if (lineMaterialRef.current) lineMaterialRef.current.opacity = fadeIn * 0.35;
+    if (lineMaterialRef.current) lineMaterialRef.current.opacity = fadeIn * 0.18;
 
     if (!reducedMotion && pointsRef.current) {
       const posAttr = pointsRef.current.geometry.attributes.position;

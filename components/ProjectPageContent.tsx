@@ -1,240 +1,81 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { ProjectNode } from "@/lib/graph-data";
 import { useLocaleStore } from "@/lib/locale-store";
 import { dictionary, pick } from "@/lib/i18n";
 import BackToUniverse from "@/components/BackToUniverse";
 
-function hostnameLabel(url?: string) {
-  if (!url) return "";
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-}
-
-function instagramHandle(url: string) {
-  try {
-    const path = new URL(url).pathname.replace(/^\/+|\/+$/g, "");
-    return path.split("/")[0] || url;
-  } catch {
-    return url;
-  }
-}
-
-export default function ProjectPageContent({
-  project,
-  childNodes,
-  hasMockup,
-}: {
+export default function ProjectPageContent({ project, childNodes }: {
   project: ProjectNode;
   childNodes: ProjectNode[];
-  hasMockup: boolean;
 }) {
-  const locale = useLocaleStore((s) => s.locale);
+  const locale = useLocaleStore(s => s.locale);
+  const es = locale === "es";
   const t = dictionary[locale];
-
-  const includedItems = childNodes.map((n) => ({
-    name: n.title,
-    description: pick(locale, n.description),
-    url: n.liveUrl ?? n.instagramUrl,
-  }));
-
-  // Real websites get a browser mockup (with a real screenshot once we have
-  // one); Instagram-only businesses get an Instagram-style card instead of
-  // a fake browser window pretending to be a site that doesn't exist.
-  const hasWebsite = hasMockup;
-  const instagramOnly = !hasWebsite && !!project.instagramUrl;
-  const hasRightPanel = hasWebsite || instagramOnly;
-
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-black px-6 pb-24 pt-32 sm:px-12 lg:px-20">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full opacity-40 blur-[120px]"
-        style={{
-          background: "radial-gradient(circle, #4d9fff, transparent 70%)",
-        }}
-      />
-
-      <div
-        className={`relative mx-auto grid max-w-6xl gap-16 ${
-          hasRightPanel ? "lg:grid-cols-2 lg:items-center" : "max-w-2xl"
-        }`}
-      >
-        <div className="flex flex-col gap-8">
-          <BackToUniverse />
-
-          <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <p className="text-sm uppercase tracking-[0.25em] text-accent-soft">
-                {pick(locale, project.category)}
-                {project.year && ` · ${project.year}`}
-              </p>
-              {project.statusKey && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-soft/30 bg-accent-soft/10 px-3 py-1 text-xs text-accent-soft">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent-soft animate-pulse" />
-                  {t.status[project.statusKey]}
-                </span>
-              )}
-            </div>
-            <h1 className="mt-3 text-4xl font-light text-white sm:text-5xl">
-              {project.title}
-            </h1>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
-              {pick(locale, project.longDescription)}
-            </p>
-          </div>
-
-          {project.tech.length > 0 && (
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-muted">
-                {t.builtWith}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {project.tech.map((tech) => (
-                  <span
-                    key={tech}
-                    className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/80"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {(project.liveUrl || project.instagramUrl) && (
-            <div className="flex flex-wrap items-center gap-3">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black transition-transform hover:-translate-y-0.5"
-                >
-                  {project.ctaLabel ? pick(locale, project.ctaLabel) : t.viewProject}
-                  <span aria-hidden>↗</span>
-                </a>
-              )}
-              {project.instagramUrl && (
-                <a
-                  href={project.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-white/40"
-                >
-                  {t.instagram}
-                  <span aria-hidden>↗</span>
-                </a>
-              )}
-            </div>
-          )}
+  const screenshots = project.screenshots ?? [];
+  const cover = screenshots[0];
+  const sourceLabel = project.screenshotSource === "instagram"
+    ? (es ? "Perfil público · Instagram" : "Public profile · Instagram")
+    : project.screenshotSource === "document"
+      ? (es ? "Documento · Google Docs" : "Document · Google Docs")
+      : project.liveUrl ? new URL(project.liveUrl).hostname.replace(/^www\./, "") : "";
+  return <main className="project-page">
+    <div className="project-intro">
+      <div>
+        <BackToUniverse />
+        {project.parentId && <Link className="project-parent" href={`/projects/${project.parentId}`}>← {es ? "Ver categoría" : "View category"}</Link>}
+        <p className="project-category">{pick(locale, project.category)}{project.year && ` · ${project.year}`}</p>
+        <h1>{project.title}</h1>
+        <p className="project-description">{pick(locale, project.longDescription)}</p>
+        {project.statusKey && <p className="project-status">{t.status[project.statusKey]}</p>}
+        {project.tech.length > 0 && <div className="project-tech" aria-label={t.builtWith}>{project.tech.map(tech => <span key={tech}>{tech}</span>)}</div>}
+        <div className="project-links">
+          {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">{project.ctaLabel ? pick(locale,project.ctaLabel) : t.viewProject} ↗</a>}
+          {project.instagramUrl && <a href={project.instagramUrl} target="_blank" rel="noopener noreferrer">Instagram ↗</a>}
         </div>
-
-        {hasWebsite && (
-          <div className="relative">
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/60 backdrop-blur-sm">
-              <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-                <span className="ml-3 text-xs text-muted">
-                  {hostnameLabel(project.liveUrl)}
-                </span>
-              </div>
-              <div className="relative aspect-[4/3] w-full">
-                {project.screenshotUrl ? (
-                  <Image
-                    src={project.screenshotUrl}
-                    alt={project.title}
-                    fill
-                    className="object-cover object-top"
-                  />
-                ) : (
-                  <div
-                    className="flex h-full w-full items-center justify-center"
-                    style={{
-                      background:
-                        "linear-gradient(155deg, rgba(77,159,255,0.14), rgba(255,255,255,0.02))",
-                    }}
-                  >
-                    <span className="text-xs text-muted">{t.previewSoon}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {instagramOnly && (
-          <div className="relative">
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl shadow-black/60 backdrop-blur-sm">
-              <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-accent to-accent-soft text-xs font-semibold text-black">
-                  {project.title.charAt(0)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-white">
-                    @{instagramHandle(project.instagramUrl!)}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted">
-                    {t.instagram}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-1 p-1">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="aspect-square"
-                    style={{
-                      background:
-                        "linear-gradient(155deg, rgba(77,159,255,0.18), rgba(255,255,255,0.03))",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+      {cover && <figure className="project-cover">
+        <div className="capture-bar"><span aria-hidden="true">○ ○ ○</span><span>{sourceLabel}</span></div>
+        <a href={cover.src} target="_blank" rel="noopener noreferrer" aria-label={es ? "Ampliar captura" : "Enlarge screenshot"}>
+          <Image src={cover.src} alt={`${project.title} — ${pick(locale,cover.caption)}`} width={1280} height={720} sizes="(max-width: 900px) 100vw, 55vw" preload className="project-capture" />
+        </a>
+        <figcaption>{pick(locale,cover.caption)}</figcaption>
+      </figure>}
+    </div>
 
-      {includedItems.length > 0 && (
-        <div className="relative mx-auto mt-24 max-w-6xl">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted">
-            {t.includedProjects}
-          </p>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
-            {includedItems.map((sub) => (
-              <div
-                key={sub.name}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-light text-white">{sub.name}</h2>
-                  {sub.url && (
-                    <a
-                      href={sub.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-accent-soft transition-colors hover:text-white"
-                    >
-                      {t.visit}
-                      <span aria-hidden>↗</span>
-                    </a>
-                  )}
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {sub.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </main>
-  );
+    {project.experience && <section className="project-experience" aria-label={es ? "Experiencia profesional" : "Professional experience"}>
+      <div><span>{es ? "Experiencia profesional" : "Professional experience"}</span><h2>MercadoLibre</h2></div>
+      <p>{pick(locale,project.experience)}</p>
+    </section>}
+
+    {screenshots.length > 1 && <section className="project-gallery" aria-label={es ? "Capturas del proyecto" : "Project screenshots"}>
+      <h2>{es ? "Una mirada más de cerca." : "A closer look."}</h2>
+      {screenshots.slice(1).map(shot => <figure key={shot.src}>
+        <a href={shot.src} target="_blank" rel="noopener noreferrer" aria-label={es ? "Ampliar captura" : "Enlarge screenshot"}>
+          <Image src={shot.src} alt={`${project.title} — ${pick(locale,shot.caption)}`} width={1280} height={720} sizes="(max-width: 1200px) 100vw, 1152px" className="project-capture" />
+        </a>
+        <figcaption>{pick(locale,shot.caption)}</figcaption>
+      </figure>)}
+    </section>}
+
+    {childNodes.length > 0 && <section className="included-projects">
+      <h2>{t.includedProjects}</h2>
+      <div className="project-card-grid">
+        {childNodes.map(child => <article className="project-card" key={child.id}>
+          <Link href={`/projects/${child.slug}`} className="project-card-link">
+            {child.screenshotUrl && <div className="project-card-image">
+              <Image src={child.screenshotUrl} alt={es ? `Vista de ${child.title}` : `Preview of ${child.title}`} width={1280} height={720} sizes="(max-width: 700px) 100vw, 50vw" />
+            </div>}
+            <div className="project-card-copy">
+              <h3>{child.title}<span aria-hidden="true">↗</span></h3>
+              <p>{pick(locale,child.description)}</p>
+              <span className="project-card-action">{es ? "Explorar proyecto" : "Explore project"}</span>
+            </div>
+          </Link>
+        </article>)}
+      </div>
+    </section>}
+  </main>;
 }

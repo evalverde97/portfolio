@@ -29,7 +29,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
   // Sub-nodes sit smaller and dimmer at rest, then light up to full size on
   // hover — the 5 main nodes stay the "brighter" tier at all times.
   const restScale = isSubNode ? 0.68 : 1;
-  const restEmissive = isSubNode ? 0.3 : 0.55;
+  const restEmissive = isSubNode ? 0.45 : 1.2;
 
   const setHoveredNodeId = useExperienceStore((s) => s.setHoveredNodeId);
   const beginTravelTo = useExperienceStore((s) => s.beginTravelTo);
@@ -38,7 +38,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
   useFrame((state) => {
     const { scrollProgress, hoveredNodeId, transitionPhase, reducedMotion } =
       useExperienceStore.getState();
-    const fadeIn = smoothstep(0.32, 0.5, scrollProgress);
+    const fadeIn = smoothstep(0.56, 0.7, scrollProgress);
     const isHovered = hoveredNodeId === node.id;
     const dimmed = hoveredNodeId != null && !isHovered;
 
@@ -74,6 +74,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
       position={node.position}
       onPointerOver={(e) => {
         e.stopPropagation();
+        if (!networkSettled) return;
         setHovered(true);
         setHoveredNodeId(node.id);
       }}
@@ -84,6 +85,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
       }}
       onClick={(e) => {
         e.stopPropagation();
+        if (!networkSettled || useExperienceStore.getState().transitionPhase !== "idle") return;
         beginTravelTo(node.id);
       }}
     >
@@ -91,7 +93,7 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
       <meshStandardMaterial
         ref={materialRef}
         color="#bcd9ff"
-        emissive="#4d9fff"
+        emissive="#9fc6ff"
         emissiveIntensity={0.5}
         transparent
         opacity={0}
@@ -118,11 +120,14 @@ export default function ProjectNode({ node }: { node: ProjectNodeData }) {
           </div>
         </Html>
       )}
-      {isTouch && networkSettled && !hovered && (
-        <Html distanceFactor={8} position={[0, -0.28, 0]} center className="pointer-events-none">
-          <span className="whitespace-nowrap rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-white/85 backdrop-blur-sm">
-            {node.title}
-          </span>
+      {(!isSubNode || isTouch) && networkSettled && !hovered && (
+        <Html position={[0, -0.42, 0]} center zIndexRange={[20, 10]}>
+          <button type="button" className={`node-label ${isSubNode ? "node-label-child" : ""}`} onClick={() => {
+            if (useExperienceStore.getState().transitionPhase === "idle") beginTravelTo(node.id);
+          }}>
+            <strong>{node.title}<span>↗</span></strong>
+            {!isSubNode && <small>{pick(locale, node.category)}</small>}
+          </button>
         </Html>
       )}
     </mesh>
